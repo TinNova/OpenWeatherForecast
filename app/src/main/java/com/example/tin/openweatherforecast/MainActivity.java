@@ -4,9 +4,12 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import com.example.tin.openweatherforecast.models.Weather;
 import com.example.tin.openweatherforecast.utilities.NetworkListener;
 import com.example.tin.openweatherforecast.utilities.NetworkConnection;
 import com.example.tin.openweatherforecast.utilities.NetworkUtils;
+
+import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -29,18 +32,19 @@ public class MainActivity extends AppCompatActivity {
             String weatherRequestUrl = NetworkUtils.getUrl(this);
 
             /*
-             * Use the String URL "weatherRequestUrl" to retrieve the JSON
+             * Use the String URL "weatherRequestUrl" to request the JSON from the server
+             * and parse it
              */
             NetworkConnection.getInstance(this).getResponseFromHttpUrl(weatherRequestUrl, new NetworkListener() {
                 @Override
-                public void getResult(String string) {
+                public void getWeatherArrayList(ArrayList<Weather> weather) {
 
-                    Log.i(TAG, "JSON Response: " + string);
+                    Log.i(TAG, "ArrayList Weather: " + weather);
 
+                    //TODO: Find out how to only keep data that is for 12:00:00 of every day
+                    // other than the current day
                 }
             });
-
-            //TODO: Create Class to Parse the Response
 
 
         } catch (Exception e) {
@@ -50,6 +54,3 @@ public class MainActivity extends AppCompatActivity {
 
     }
 }
-
-// afeeb06939f0aaa289151e76386ce871
-

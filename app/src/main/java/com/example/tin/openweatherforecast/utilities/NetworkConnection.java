@@ -62,7 +62,7 @@ public class NetworkConnection {
 
                 Log.d(TAG + ": ", "Response : " + response);
                 // Passing the response to the NetworkListener
-                listener.getResult(response);
+                //listener.getResult(response);
 
                 /**PARSE DATA HERE SO IT'S NOT ON THE MAIN THREAD*/
                 /**HAVE A METHOD HERE THAT SENDS THE response TO A PARSING CLASS*/
@@ -130,6 +130,11 @@ public class NetworkConnection {
 
                     }
 
+                    // Send mWeather ArrayList to MainActivity
+                    listener.getWeatherArrayList(mWeather);
+
+
+
                     //TODO: Update adapter here: "adapter.notifyDataSetChanged();"
 
 
@@ -142,21 +147,21 @@ public class NetworkConnection {
         };
 
 
-            // Handler for when the server returns an error response
-            com.android.volley.Response.ErrorListener errorListener = new com.android.volley.Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    error.printStackTrace();
-                }
-            };
+        // Handler for when the server returns an error response
+        com.android.volley.Response.ErrorListener errorListener = new com.android.volley.Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        };
 
-            // This is the body of the Request
-            StringRequest request = new StringRequest(Request.Method.GET, url, responseListener, errorListener) {
+        // This is the body of the Request
+        StringRequest request = new StringRequest(Request.Method.GET, url, responseListener, errorListener) {
 
-            };
+        };
 
 
-            mRequestQueue.add(request);
+        mRequestQueue.add(request);
 
     }
 }
