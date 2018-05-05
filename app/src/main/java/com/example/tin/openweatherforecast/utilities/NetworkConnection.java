@@ -20,6 +20,37 @@ import java.util.ArrayList;
 
 public class NetworkConnection {
 
+    /* Date & Time Information */
+    private static final String OWM_UNIX_DT = "dt";
+    private static final String OWM_CALC_DT = "dt_txt";
+
+    /* Temperature Information */
+    private static final String OWN_TEMP_CURRENT = "temp";
+    private static final String OWN_TEMP_MIN = "temp_min";
+    private static final String OWN_TEMP_MAX = "temp_max";
+
+    /* Weather Information */
+    private static final String OWN_TITLE = "main";
+    private static final String OWN_DESCRIPTION = "description";
+    private static final String OWN_ICON = "icon";
+
+    /* Wind Information */
+    private static final String OWN_WIND_SPEED = "speed";
+    private static final String OWN_WIND_DEGREE = "deg";
+
+    /* JSON Objects And Arrays Within The Json Containing Weather Data */
+    private static final String OWN_JSON_LIST = "list";
+    private static final String OWN_JSON_MAIN = "main";
+    private static final String OWN_JSON_WEATHER = "weather";
+    private static final String OWN_JSON_WIND = "wind";
+
+    private static final String OWM_MESSAGE_CODE = "cod";
+
+    /* The Time Value To Save Into The Weather ArrayList */
+    private static final String MIDDAY = "12:00:00";
+
+
+
     private static final String TAG = NetworkConnection.class.getSimpleName();
 
     public ArrayList<Weather> mWeather = new ArrayList<>();
@@ -71,51 +102,51 @@ public class NetworkConnection {
                     // Define the entire response as a JSON Object
                     JSONObject openWeatherJsonObject = new JSONObject(response);
                     // if cod is not equal to 200, then something went wrong, show a no data screen
-                    if (openWeatherJsonObject.getInt("cod") != 200) {
+                    if (openWeatherJsonObject.getInt(OWM_MESSAGE_CODE) != 200) {
                         //TODO: Handle this case gracefully
                     }
 
                     // Define the "list" JsonArray as a JSONArray
-                    JSONArray listJsonArray = openWeatherJsonObject.getJSONArray("list");
+                    JSONArray listJsonArray = openWeatherJsonObject.getJSONArray(OWN_JSON_LIST);
                     // Using a for loop to cycle through each JsonObject within the listJsonArray
                     for (int i = 0; i < listJsonArray.length(); i++) {
 
                         // Get the ith forecast in the JSON and define it as a JsonObject
                         JSONObject forecastJsonObject = listJsonArray.getJSONObject(i);
 
-                        int unixDateTime = forecastJsonObject.getInt("dt");
-                        String calculateDateTime = forecastJsonObject.getString("dt_txt");
+                        int unixDateTime = forecastJsonObject.getInt(OWM_UNIX_DT);
+                        String calculateDateTime = forecastJsonObject.getString(OWM_CALC_DT);
 
                         // Get the "main" JsonObject from the forecastJsonObject
                         // and define it as a JsonObject
-                        JSONObject mainJsonObject = forecastJsonObject.getJSONObject("main");
+                        JSONObject mainJsonObject = forecastJsonObject.getJSONObject(OWN_JSON_MAIN);
 
-                        double tempCurrent = mainJsonObject.getDouble("temp");
-                        double tempMin = mainJsonObject.getDouble("temp_min");
-                        double tempMax = mainJsonObject.getDouble("temp_max");
+                        double tempCurrent = mainJsonObject.getDouble(OWN_TEMP_CURRENT);
+                        double tempMin = mainJsonObject.getDouble(OWN_TEMP_MIN);
+                        double tempMax = mainJsonObject.getDouble(OWN_TEMP_MAX);
 
                         // Get the "weather" JsonArray from the forecastJsonObject
                         // and define it as a JsonArray
-                        JSONArray weatherJsonArray = forecastJsonObject.getJSONArray("weather");
+                        JSONArray weatherJsonArray = forecastJsonObject.getJSONArray(OWN_JSON_WEATHER);
                         // Get the 0th JsonObject from the weatherJsonArray
                         // and define it as a JsonObject
                         JSONObject weatherJsonObject = weatherJsonArray.getJSONObject(0);
 
-                        String weatherTitle = weatherJsonObject.getString("main");
-                        String weatherDescription = weatherJsonObject.getString("description");
-                        String weatherIcon = weatherJsonObject.getString("icon");
+                        String weatherTitle = weatherJsonObject.getString(OWN_TITLE);
+                        String weatherDescription = weatherJsonObject.getString(OWN_DESCRIPTION);
+                        String weatherIcon = weatherJsonObject.getString(OWN_ICON);
 
                         // Get the "wind" JsonObject from the forecastJsonObject
                         // and define it as a JsonObject
-                        JSONObject windJsonObject = forecastJsonObject.getJSONObject("wind");
+                        JSONObject windJsonObject = forecastJsonObject.getJSONObject(OWN_JSON_WIND);
 
-                        double windSpeed = windJsonObject.getDouble("speed");
-                        double windDegree = windJsonObject.getDouble("deg");
+                        double windSpeed = windJsonObject.getDouble(OWN_WIND_SPEED);
+                        double windDegree = windJsonObject.getDouble(OWN_WIND_DEGREE);
 
                         // if statement ensures we only take the midday data for each day, except
                         // if it is the current day, in which case we will take the current data
                         // and the midday data if it is before midday.
-                        if (i == 0 || calculateDateTime.contains("12:00:00")) {
+                        if (i == 0 || calculateDateTime.contains(MIDDAY)) {
 
                             Weather weather = new Weather(
                                     unixDateTime,
