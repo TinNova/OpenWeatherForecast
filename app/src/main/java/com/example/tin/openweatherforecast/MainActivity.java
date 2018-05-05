@@ -2,29 +2,45 @@ package com.example.tin.openweatherforecast;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
+import com.example.tin.openweatherforecast.utilities.NetworkListener;
+import com.example.tin.openweatherforecast.utilities.NetworkConnection;
 import com.example.tin.openweatherforecast.utilities.NetworkUtils;
 
-import java.net.URL;
-
-/**
- * Created by Tin on 03/05/2018.
- */
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = MainActivity.class.getSimpleName();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //TODO: Check for an internet connection first, if none, then, if SQL data is less than
+        //TODO:... 24hrs old display it, else display a no data screen.
         try {
             /*
-             * The getUrl method will return the URL that we need to get the forecast JSON for the
-             * weather. It will decide whether to create a URL based off of the latitude and
-             * longitude or off of a simple location as a String.
+             * The getUrl method will return the URL as a String that we need to get the forecast
+             * JSON for the weather.
              */
-            URL weatherRequestUrl = NetworkUtils.getUrl(this);
+            String weatherRequestUrl = NetworkUtils.getUrl(this);
+
+            /*
+             * Use the String URL "weatherRequestUrl" to retrieve the JSON
+             */
+            NetworkConnection.getInstance(this).getResponseFromHttpUrl(weatherRequestUrl, new NetworkListener() {
+                @Override
+                public void getResult(String string) {
+
+                    Log.i(TAG, "JSON Response: " + string);
+
+                }
+            });
+
+            //TODO: Create Class to Parse the Response
 
         } catch (Exception e) {
             /* Server probably invalid */
@@ -33,9 +49,4 @@ public class MainActivity extends AppCompatActivity {
 
     }
 }
-
-// TODO: Build NetworkUtilsKo Class
-// TODO: Trigger the NetworkUtilsKo Class to retrieve data from MainActivities OnCreate
-// TODO: Log the data to see if it works
-// TODO: Parse the data
 

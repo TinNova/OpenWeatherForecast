@@ -4,16 +4,22 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
+
 import com.example.tin.openweatherforecast.BuildConfig;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
-/**
- * Created by Tin on 03/05/2018.
- */
-
 public class NetworkUtils {
+
+    // URL STRUCTURE
+    // http://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API_KEY}
+
+    // EXAMPLE URL
+    // http://api.openweathermap.org/data/2.5/forecast?lat=35&lon=139&appid=1010101010
+
+    // URL STRUCTURE WITH ADDITIONAL PARAMETERS
+    // http://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}?units={UNIT_TYPE}&appid={API_KEY}
 
     private static final String TAG = NetworkUtils.class.getSimpleName();
 
@@ -36,24 +42,24 @@ public class NetworkUtils {
     private static final String LON_PARAM = "lon";
 
 
-    public static URL getUrl(Context context) {
+    public static String getUrl(Context context) {
 
-        // Add code that gets the users current Lat and Long
+        //TODO: Add code that gets the users current Lat and Long
         double currentLatitude = 51;
         double currentLongitude = -0;
 
-        return buildUrlWithLatLong(currentLatitude, currentLongitude);
+        return buildUrl(currentLatitude, currentLongitude);
     }
 
 
     /**
-         * Builds the URL with our specified parameters
-         *
-         * @param latitude
-         * @param longitude
-         * @return
-         */
-    private static URL buildUrlWithLatLong(Double latitude, Double longitude) {
+     * Builds the URL with our specified parameters
+     *
+     * @param latitude Double representing the users current latitude
+     * @param longitude Double representing the users current longitude
+     * @return The URL that will be used to query the OpenWeatherMap server
+     */
+    private static String buildUrl(Double latitude, Double longitude) {
         Uri openWeatherQueryUri = Uri.parse(BASE_WEATHER_URL).buildUpon()
                 .appendQueryParameter(LAT_PARAM, String.valueOf(latitude))
                 .appendQueryParameter(LON_PARAM, String.valueOf(longitude))
@@ -65,19 +71,17 @@ public class NetworkUtils {
         try {
             URL weatherQueryUrl = new URL(openWeatherQueryUri.toString());
             Log.v(TAG, "weatherQueryUrl: " + weatherQueryUrl);
-            return weatherQueryUrl;
+            convertUrlToString(weatherQueryUrl);
+            return convertUrlToString(weatherQueryUrl);
         } catch (MalformedURLException e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    // URL STRUCTURE
-    // api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API_KEY}
+    private static String convertUrlToString(URL url) throws MalformedURLException {
 
-    // EXAMPLE URL
-    // api.openweathermap.org/data/2.5/forecast?lat=35&lon=139
+        return url.toString();
 
-    // URL STRUCTURE WITH ADDITIONAL PARAMETERS
-    // api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}?units=metric&appid={API_KEY}
+    }
 }
