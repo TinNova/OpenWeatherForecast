@@ -8,17 +8,21 @@ import com.android.volley.RequestQueue;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.tin.openweatherforecast.models.Weather;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 
 
 public class NetworkConnection {
 
     private static final String TAG = NetworkConnection.class.getSimpleName();
+
+    public ArrayList<Weather> mWeather = new ArrayList<>();
 
 
     private static NetworkConnection instance = null;
@@ -108,7 +112,25 @@ public class NetworkConnection {
                         double windSpeed = windJsonObject.getDouble("speed");
                         double windDegree = windJsonObject.getDouble("deg");
 
+                        Weather weather = new Weather(
+                                unixDateTime,
+                                calculateDateTime,
+                                tempCurrent,
+                                tempMin,
+                                tempMax,
+                                weatherTitle,
+                                weatherDescription,
+                                weatherIcon,
+                                windSpeed,
+                                windDegree
+                        );
+
+                        mWeather.add(weather);
+                        Log.d(TAG, "Weather List: " + weather);
+
                     }
+
+                    //TODO: Update adapter here: "adapter.notifyDataSetChanged();"
 
 
                 } catch (JSONException e) {
