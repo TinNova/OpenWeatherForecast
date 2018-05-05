@@ -108,7 +108,6 @@ public class NetworkConnection {
                         double windSpeed = windJsonObject.getDouble("speed");
                         double windDegree = windJsonObject.getDouble("deg");
 
-
                     }
 
 
