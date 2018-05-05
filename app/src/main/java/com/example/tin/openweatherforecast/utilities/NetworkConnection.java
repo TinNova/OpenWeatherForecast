@@ -112,30 +112,33 @@ public class NetworkConnection {
                         double windSpeed = windJsonObject.getDouble("speed");
                         double windDegree = windJsonObject.getDouble("deg");
 
-                        Weather weather = new Weather(
-                                unixDateTime,
-                                calculateDateTime,
-                                tempCurrent,
-                                tempMin,
-                                tempMax,
-                                weatherTitle,
-                                weatherDescription,
-                                weatherIcon,
-                                windSpeed,
-                                windDegree
-                        );
+                        // if statement ensures we only take the midday data for each day, except
+                        // if it is the current day, in which case we will take the current data
+                        // and the midday data if it is before midday.
+                        if (i == 0 || calculateDateTime.contains("12:00:00")) {
 
-                        mWeather.add(weather);
-                        Log.d(TAG, "Weather List: " + weather);
+                            Weather weather = new Weather(
+                                    unixDateTime,
+                                    calculateDateTime,
+                                    tempCurrent,
+                                    tempMin,
+                                    tempMax,
+                                    weatherTitle,
+                                    weatherDescription,
+                                    weatherIcon,
+                                    windSpeed,
+                                    windDegree
+                            );
+
+                            mWeather.add(weather);
+                            Log.d(TAG, "Weather List: " + weather);
+
+                        }
 
                     }
 
                     // Send mWeather ArrayList to MainActivity
                     listener.getWeatherArrayList(mWeather);
-
-
-
-                    //TODO: Update adapter here: "adapter.notifyDataSetChanged();"
 
 
                 } catch (JSONException e) {
