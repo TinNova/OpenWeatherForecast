@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.tin.openweatherforecast.Adapters.WeatherAdapter;
@@ -12,6 +13,7 @@ import com.example.tin.openweatherforecast.models.Weather;
 import com.example.tin.openweatherforecast.utilities.NetworkListener;
 import com.example.tin.openweatherforecast.utilities.NetworkConnection;
 import com.example.tin.openweatherforecast.utilities.NetworkUtils;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -35,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     TextView tvTodayDescription;
     TextView tvTodayWindSpeed;
     TextView tvTodayWindDirection;
+    ImageView tvTodayIcon;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,9 +46,10 @@ public class MainActivity extends AppCompatActivity {
 
         tvTodayDate = findViewById(R.id.tV_todayDate);
         tvTodayTemp = findViewById(R.id.tV_todayTemp);
-        tvTodayDescription = findViewById(R.id.tV_todayWindDirection);
+        tvTodayDescription = findViewById(R.id.tV_todayDescription);
         tvTodayWindSpeed = findViewById(R.id.tV_todayWindSpeed);
-        tvTodayWindDirection = findViewById(R.id.tV_todayDescription);
+        tvTodayWindDirection = findViewById(R.id.tV_todayWindDirection);
+        tvTodayIcon = findViewById(R.id.iV_todayIcon);
 
         /* Creating The RecyclerView */
         // This will be used to attach the RecyclerView to the MovieAdapter
@@ -90,6 +94,9 @@ public class MainActivity extends AppCompatActivity {
                     tvTodayDescription.setText(weather.get(0).getWeatherDescription());
                     tvTodayWindSpeed.setText((String.valueOf(weather.get(0).getWindSpeed())));
                     tvTodayWindDirection.setText((String.valueOf(weather.get(0).getWindDegree())));
+
+                    Picasso.with(MainActivity.this).load(weather.get(0).getWeatherIcon())
+                            .into(tvTodayIcon);
 
                     // Connecting the weather ArrayList to the Adapter, and the Adapter to the
                     // RecyclerView

@@ -4,6 +4,8 @@ package com.example.tin.openweatherforecast.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.example.tin.openweatherforecast.utilities.NetworkUtils;
+
 public class Weather implements Parcelable {
 
     //TODO: Write out all of the code to save a data of Weather
@@ -110,7 +112,7 @@ public class Weather implements Parcelable {
     }
 
     public String getWeatherIcon() {
-        return weatherIcon;
+        return NetworkUtils.BASE_IMAGE_URL + weatherIcon + NetworkUtils.END_IMAGE_URL;
     }
 
     public double getWindSpeed() {

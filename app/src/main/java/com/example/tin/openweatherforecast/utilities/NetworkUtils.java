@@ -41,6 +41,9 @@ public class NetworkUtils {
     private static final String LAT_PARAM = "lat";
     private static final String LON_PARAM = "lon";
 
+    // BASE URL FOR IMAGES
+    public static final String BASE_IMAGE_URL = "http://openweathermap.org/img/w/";
+    public static final String END_IMAGE_URL = ".png";
 
     public static String getUrl(Context context) {
 
