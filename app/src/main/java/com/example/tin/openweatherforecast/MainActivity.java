@@ -2,6 +2,7 @@ package com.example.tin.openweatherforecast;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
 import com.example.tin.openweatherforecast.models.Weather;
@@ -15,6 +16,14 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+
+    /*
+     * Needed for the RecyclerView
+     */
+    private RecyclerView mRecyclerView;
+    private WeatherAdapter mWeatherAdapter;
+    // Public because it is used in CompanyDetailActivity to addToDatabase
+    public ArrayList<Weather> mWeather = new ArrayList<>();
 
 
     @Override
@@ -41,8 +50,9 @@ public class MainActivity extends AppCompatActivity {
 
                     Log.i(TAG, "ArrayList Weather: " + weather);
 
-                    //TODO: Find out how to only keep data that is for 12:00:00 of every day
-                    // other than the current day
+                    // This will efficiently update the adapter with new information
+                    adapter.notifyDataSetChanged();
+
                 }
             });
 

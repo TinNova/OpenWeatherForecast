@@ -37,4 +37,6 @@ dependencies {
     compile 'com.google.android.gms:play-services-location:15.0.0'
     //Volley For Network Connection
     implementation 'com.android.volley:volley:1.0.0'
+    //RecyclerView Dependency
+    compile 'com.android.support:recyclerview-v7:27.1.1'
 }
