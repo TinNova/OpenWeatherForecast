@@ -1,11 +1,105 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rV_weatherList"
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="wrap_content">
 
-</android.support.constraint.ConstraintLayout>
+        <TextView
+            android:id="@+id/tV_todayDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="Saturday, 6 May"
+            android:textAlignment="center"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tV_todayTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="20c"
+            android:textSize="54sp"
+            app:layout_constraintEnd_toEndOf="@+id/tV_todayDate"
+            app:layout_constraintStart_toStartOf="@+id/tV_todayDate"
+            app:layout_constraintTop_toBottomOf="@+id/tV_todayDate" />
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintBottom_toBottomOf="@+id/tV_todayTemp"
+            app:layout_constraintEnd_toStartOf="@+id/tV_todayTemp"
+            app:layout_constraintTop_toTopOf="@+id/tV_todayTemp"
+            app:srcCompat="@mipmap/ic_launcher" />
+
+        <TextView
+            android:id="@+id/tV_todayWindSpeed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Wind: 5km/h"
+            app:layout_constraintEnd_toStartOf="@+id/tV_todayWindDirection"
+            app:layout_constraintStart_toStartOf="@+id/tV_todayTemp"
+            app:layout_constraintTop_toBottomOf="@+id/tV_todayTemp" />
+
+        <TextView
+            android:id="@+id/tV_todayWindDirection"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="NW"
+            app:layout_constraintEnd_toEndOf="@+id/tV_todayTemp"
+            app:layout_constraintStart_toEndOf="@+id/tV_todayWindSpeed"
+            app:layout_constraintTop_toBottomOf="@+id/tV_todayTemp" />
+
+        <TextView
+            android:id="@+id/tV_todayDescription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="Clear Sky"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tV_todayWindSpeed" />
+
+        <View
+            android:id="@+id/view"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="32dp"
+            android:background="@color/colorPrimaryDark"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tV_todayDescription" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rV_weatherList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/view" />
+
+    </android.support.constraint.ConstraintLayout>
+
+</ScrollView>
