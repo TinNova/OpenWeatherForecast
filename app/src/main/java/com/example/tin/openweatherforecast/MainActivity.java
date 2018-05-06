@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.example.tin.openweatherforecast.Adapters.WeatherAdapter;
 import com.example.tin.openweatherforecast.models.Weather;
@@ -24,14 +25,27 @@ public class MainActivity extends AppCompatActivity {
      */
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
-    // Public because it is used in CompanyDetailActivity to addToDatabase
     private ArrayList<Weather> mWeather;
 
+    /*
+     * TextViews used to populate the current times weather
+     */
+    TextView tvTodayDate;
+    TextView tvTodayTemp;
+    TextView tvTodayDescription;
+    TextView tvTodayWindSpeed;
+    TextView tvTodayWindDirection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        tvTodayDate = findViewById(R.id.tV_todayDate);
+        tvTodayTemp = findViewById(R.id.tV_todayTemp);
+        tvTodayDescription = findViewById(R.id.tV_todayWindDirection);
+        tvTodayWindSpeed = findViewById(R.id.tV_todayWindSpeed);
+        tvTodayWindDirection = findViewById(R.id.tV_todayDescription);
 
         /* Creating The RecyclerView */
         // This will be used to attach the RecyclerView to the MovieAdapter
@@ -70,17 +84,25 @@ public class MainActivity extends AppCompatActivity {
                     // Logging the weather ArrayList to see if it's functioning
                     Log.i(TAG, "ArrayList Weather: " + weather);
 
+                    // Populating the current times weather
+                    tvTodayDate.setText(weather.get(0).getCalculateDateTime());
+                    tvTodayTemp.setText((String.valueOf(weather.get(0).getTempCurrent())));
+                    tvTodayDescription.setText(weather.get(0).getWeatherDescription());
+                    tvTodayWindSpeed.setText((String.valueOf(weather.get(0).getWindSpeed())));
+                    tvTodayWindDirection.setText((String.valueOf(weather.get(0).getWindDegree())));
+
                     // Connecting the weather ArrayList to the Adapter, and the Adapter to the
                     // RecyclerView
                     mAdapter = new WeatherAdapter(weather, getApplicationContext());
                     mRecyclerView.setAdapter(mAdapter);
+
 
                     /*
                     * Used to update the adapter when information is there already, for example
                     * if the SQLite data present, and user conencts to wifi, we want the latest
                     * data to overwrite the SQLite data in the adapter and recyclerView
                     */
-                    //mAdapter.notifyDataSetChanged();
+                    //
 
                 }
             });

@@ -88,6 +88,7 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHold
             tvDate = itemView.findViewById(R.id.tV_date);
             tvDescription = itemView.findViewById(R.id.tV_description);
             tvTemp = itemView.findViewById(R.id.tV_temp);
+
         }
     }
 }
