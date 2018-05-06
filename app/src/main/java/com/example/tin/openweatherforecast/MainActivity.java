@@ -70,8 +70,7 @@ public class MainActivity extends AppCompatActivity {
                     // Logging the weather ArrayList to see if it's functioning
                     Log.i(TAG, "ArrayList Weather: " + weather);
 
-                    mAdapter = new WeatherAdapter(mWeather, getApplicationContext(), this);
-                    mRecyclerView.setAdapter(mAdapter);
+                    connectAdapterToWeatherData(weather);
 
                     /*
                     * Used to update the adapter when information is there already, for example
@@ -83,11 +82,17 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-
         } catch (Exception e) {
             /* Server probably invalid */
             e.printStackTrace();
         }
+    }
+
+
+    public void connectAdapterToWeatherData(ArrayList<Weather> arrayList) {
+
+        mAdapter = new WeatherAdapter(arrayList, getApplicationContext());
+        mRecyclerView.setAdapter(mAdapter);
 
     }
 }

@@ -23,7 +23,7 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHold
     private final List<Weather> mWeather;
     private final Context context;
 
-    public WeatherAdapter(List<Weather> mWeather, Context context, NetworkListener networkListener) {
+    public WeatherAdapter(List<Weather> mWeather, Context context) {
         this.mWeather = mWeather;
         this.context = context;
     }
@@ -59,8 +59,7 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHold
 
         viewHolder.tvDate.setText(weather.getCalculateDateTime());
         viewHolder.tvDescription.setText(weather.getWeatherDescription());
-        viewHolder.tvTemp.setText((int) weather.getTempCurrent());
-
+        viewHolder.tvTemp.setText(String.valueOf(weather.getTempCurrent()));
 
     }
 
