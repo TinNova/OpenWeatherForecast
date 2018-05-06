@@ -6,6 +6,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
+import com.example.tin.openweatherforecast.Adapters.WeatherAdapter;
 import com.example.tin.openweatherforecast.models.Weather;
 import com.example.tin.openweatherforecast.utilities.NetworkListener;
 import com.example.tin.openweatherforecast.utilities.NetworkConnection;
@@ -69,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
                     // Logging the weather ArrayList to see if it's functioning
                     Log.i(TAG, "ArrayList Weather: " + weather);
 
-                    mAdapter = new WeatherAdapter(mWeather, getApplicationContext(), MainActivity.this);
+                    mAdapter = new WeatherAdapter(mWeather, getApplicationContext(), this);
                     mRecyclerView.setAdapter(mAdapter);
 
                     /*
@@ -77,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
                     * if the SQLite data present, and user conencts to wifi, we want the latest
                     * data to overwrite the SQLite data in the adapter and recyclerView
                     */
-                    mAdapter.notifyDataSetChanged();
+                    //mAdapter.notifyDataSetChanged();
 
                 }
             });
