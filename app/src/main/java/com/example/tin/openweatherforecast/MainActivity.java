@@ -1,12 +1,17 @@
 package com.example.tin.openweatherforecast;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.tin.openweatherforecast.adapters.WeatherAdapter;
 import com.example.tin.openweatherforecast.models.Weather;
@@ -22,8 +27,12 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
+    // Used to check if the device has internet connection
+    private ConnectivityManager mConnectionManager;
+    private NetworkInfo mNetworkInfo;
+
     /*
-     * Needed to make the wind speed more readable for users
+     * Needed to make the wind speed more readable for users in UI
      */
     String WIND_INTRO;
     String WIND_UNIT;
@@ -78,6 +87,26 @@ public class MainActivity extends AppCompatActivity {
 
         //TODO: Check for an internet connection first, if none, then, if SQL data is less than
         //TODO:... 24hrs old display it, else display a no data screen.
+
+        // Checking If The Device Is Connected To The Internet
+        mConnectionManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        // If the connManager and networkInfo is NOT null, start the login() method
+        if (mConnectionManager != null)
+            mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
+        if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
+
+            getData();
+
+        } else {
+
+            Toast.makeText(this, "No Internet Connection", Toast.LENGTH_SHORT).show();
+            //TODO: Check if data exists and is under 24hrs old, if Yes == show SQL data, else show no data screen
+        }
+    }
+
+    private void getData() {
+
         try {
             /*
              * The getUrl method will return the URL as a String that we need to get the forecast
@@ -114,6 +143,8 @@ public class MainActivity extends AppCompatActivity {
                     mAdapter = new WeatherAdapter(weather, getApplicationContext(), DEGREE_SYMBOL);
                     mRecyclerView.setAdapter(mAdapter);
 
+                    //TODO: Here delete old data from SQL and save new data
+
                     //TODO: DO THIS NEXT AFTER THE PARK!!!!!
                     /**
                      * if networkConnection == true {download data, then save to SQL within IntentService}
@@ -144,5 +175,6 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
 
 }
