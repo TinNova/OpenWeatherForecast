@@ -114,7 +114,22 @@ public class MainActivity extends AppCompatActivity {
                     mAdapter = new WeatherAdapter(weather, getApplicationContext(), DEGREE_SYMBOL);
                     mRecyclerView.setAdapter(mAdapter);
 
-
+                    //TODO: DO THIS NEXT AFTER THE PARK!!!!!
+                    /**
+                     * if networkConnection == true {download data, then save to SQL within IntentService}
+                     * else if networkConnection == false {display no internet msg, and load SQL}
+                     * else if SQL data not existent or older than 24hrs {show no data screen}
+                     *
+                     *
+                     *
+                     *
+                     *
+                     *
+                     *
+                     *
+                     *
+                     *
+                     */
                     /*
                     * Used to update the adapter when information is there already, for example
                     * if the SQLite data present, and user conencts to wifi, we want the latest

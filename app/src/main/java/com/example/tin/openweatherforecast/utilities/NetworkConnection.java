@@ -15,7 +15,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.MalformedURLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 
 public class NetworkConnection {
@@ -48,7 +51,6 @@ public class NetworkConnection {
 
     /* The Time Value To Save Into The Weather ArrayList */
     private static final String MIDDAY = "12:00:00";
-
 
 
     private static final String TAG = NetworkConnection.class.getSimpleName();
@@ -106,6 +108,10 @@ public class NetworkConnection {
                         //TODO: Handle this case gracefully
                     }
 
+                    /* Getting today's date in Human Readable Format to help build weather data array */
+                    String todaysDate = DateUtils.getTodaysDateHumanReadable();
+                    Log.d(TAG, "Today's Date: " + todaysDate);
+
                     // Define the "list" JsonArray as a JSONArray
                     JSONArray listJsonArray = openWeatherJsonObject.getJSONArray(OWN_JSON_LIST);
                     // Using a for loop to cycle through each JsonObject within the listJsonArray
@@ -116,6 +122,9 @@ public class NetworkConnection {
 
                         int unixDateTime = forecastJsonObject.getInt(OWM_UNIX_DT);
                         String calculateDateTime = forecastJsonObject.getString(OWM_CALC_DT);
+
+                        /* Unix time converted to human readable format */
+                        String unixConverted = DateUtils.convertUnixDateToHumanReadable(unixDateTime);
 
                         // Get the "main" JsonObject from the forecastJsonObject
                         // and define it as a JsonObject
@@ -143,9 +152,22 @@ public class NetworkConnection {
                         double windSpeed = windJsonObject.getDouble(OWN_WIND_SPEED);
                         double windDegree = windJsonObject.getDouble(OWN_WIND_DEGREE);
 
+
                         // if statement ensures we only take the midday data for each day, except
                         // if it is the current day, in which case we will take the current data
                         // and the midday data if it is before midday.
+                        //TODO: This can be improved by taking the highest high and lowest low of each
+                        //TODO:... day, and adding it with the data of Midday.
+                        //TODO:... To do this, listen to my voice recording in WhatsApp!!!!
+                        //TODO:... 1. Get the current date
+                        //TODO:... 2. Convert the unixDateTime to the same format
+                        //TODO:... 3. Create a loop:
+                        //TODO:... Loop 1. Get all items with today's date
+                        //TODO:... Loop 2. Get all items with today's date +1
+                        //TODO:... Loop 3. Get all items with today's date +2 ect...
+                        //TODO:... Logic: Then take the highest high, lowest low and combine it
+                        //TODO:... Logic... with the Midday data containing (icon, wind, desc ect...)
+                        //TODO: DateUtils has been added to help with this.
                         if (i == 0 || calculateDateTime.contains(MIDDAY)) {
 
                             Weather weather = new Weather(
