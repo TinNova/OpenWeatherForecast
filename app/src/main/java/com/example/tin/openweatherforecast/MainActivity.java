@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     TextView tvTodayDescription;
     TextView tvTodayWindSpeed;
     TextView tvTodayWindDirection;
-    ImageView tvTodayIcon;
+    ImageView ivTodayIcon;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
         tvTodayDescription = findViewById(R.id.tV_todayDescription);
         tvTodayWindSpeed = findViewById(R.id.tV_todayWindSpeed);
         tvTodayWindDirection = findViewById(R.id.tV_todayWindDirection);
-        tvTodayIcon = findViewById(R.id.iV_todayIcon);
+        ivTodayIcon = findViewById(R.id.iV_todayIcon);
 
         /* Creating The RecyclerView */
         // This will be used to attach the RecyclerView to the MovieAdapter
@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
                     tvTodayWindDirection.setText((String.valueOf(weather.get(0).getWindDegree())));
 
                     Picasso.with(MainActivity.this).load(weather.get(0).getWeatherIcon())
-                            .into(tvTodayIcon);
+                            .into(ivTodayIcon);
 
                     // Connecting the weather ArrayList to the Adapter, and the Adapter to the
                     // RecyclerView

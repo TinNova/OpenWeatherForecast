@@ -6,11 +6,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.tin.openweatherforecast.R;
 import com.example.tin.openweatherforecast.models.Weather;
 import com.example.tin.openweatherforecast.utilities.NetworkListener;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -61,6 +63,9 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHold
         viewHolder.tvDescription.setText(weather.getWeatherDescription());
         viewHolder.tvTemp.setText(String.valueOf(weather.getTempCurrent()));
 
+        Picasso.with(context).load(weather.getWeatherIcon())
+                .into(viewHolder.ivIcon);
+
     }
 
     /*
@@ -80,6 +85,7 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHold
         final TextView tvDate;
         final TextView tvDescription;
         final TextView tvTemp;
+        final ImageView ivIcon;
 
 
         public ViewHolder(View itemView) {
@@ -88,6 +94,7 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHold
             tvDate = itemView.findViewById(R.id.tV_date);
             tvDescription = itemView.findViewById(R.id.tV_description);
             tvTemp = itemView.findViewById(R.id.tV_temp);
+            ivIcon = itemView.findViewById(R.id.ic_weather);
 
         }
     }

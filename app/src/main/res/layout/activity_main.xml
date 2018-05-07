@@ -27,7 +27,6 @@
             android:id="@+id/tV_todayTemp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:text="20c"
             android:textSize="54sp"
             app:layout_constraintEnd_toEndOf="@+id/tV_todayDate"
@@ -36,11 +35,12 @@
 
         <ImageView
             android:id="@+id/iV_todayIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
             android:layout_marginBottom="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginTop="8dp"
+            android:scaleType="fitCenter"
             app:layout_constraintBottom_toBottomOf="@+id/tV_todayTemp"
             app:layout_constraintEnd_toStartOf="@+id/tV_todayTemp"
             app:layout_constraintTop_toTopOf="@+id/tV_todayTemp"
