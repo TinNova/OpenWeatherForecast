@@ -12,10 +12,6 @@ import android.support.annotation.Nullable;
 
 import static com.example.tin.openweatherforecast.sql.WeatherContract.WeatherEntry.TABLE_NAME;
 
-/**
- * Created by Tin on 07/05/2018.
- */
-
 public class WeatherProvider extends ContentProvider {
 
     /* Defining final integer constants for the directory of favouritesMovies and a single Item

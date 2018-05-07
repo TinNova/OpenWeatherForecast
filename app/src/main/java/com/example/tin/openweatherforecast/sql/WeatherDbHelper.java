@@ -5,10 +5,6 @@ import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-/**
- * Created by Tin on 07/05/2018.
- */
-
 public class WeatherDbHelper extends SQLiteOpenHelper {
 
     /* The name of the database as it will be saved on the users Android Device */

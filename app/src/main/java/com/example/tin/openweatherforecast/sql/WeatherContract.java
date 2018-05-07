@@ -3,10 +3,6 @@ package com.example.tin.openweatherforecast.sql;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
-/**
- * Created by Tin on 07/05/2018.
- */
-
 public class WeatherContract {
 
     /* The Authority, this is how your code knows which Content Provider to access */
