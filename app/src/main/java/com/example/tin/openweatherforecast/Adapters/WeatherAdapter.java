@@ -11,23 +11,20 @@ import android.widget.TextView;
 
 import com.example.tin.openweatherforecast.R;
 import com.example.tin.openweatherforecast.models.Weather;
-import com.example.tin.openweatherforecast.utilities.NetworkListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
-
-/**
- * Created by Tin on 06/05/2018.
- */
 
 public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHolder> {
 
     private final List<Weather> mWeather;
     private final Context context;
+    private final String DEGREE_SYMBOL;
 
-    public WeatherAdapter(List<Weather> mWeather, Context context) {
+    public WeatherAdapter(List<Weather> mWeather, Context context, String degree) {
         this.mWeather = mWeather;
         this.context = context;
+        this.DEGREE_SYMBOL = degree;
     }
 
     /*
@@ -36,7 +33,7 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHold
      */
     @NonNull
     @Override
-    public WeatherAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
 
         // Create a new View and inflate the list_item Layout into it
         View v = LayoutInflater.from(viewGroup.getContext())
@@ -55,13 +52,13 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHold
      * @param position The position of the item within the adapter's data set.
      */
     @Override
-    public void onBindViewHolder(@NonNull WeatherAdapter.ViewHolder viewHolder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
 
         Weather weather = mWeather.get(position);
 
         viewHolder.tvDate.setText(weather.getCalculateDateTime());
         viewHolder.tvDescription.setText(weather.getWeatherDescription());
-        viewHolder.tvTemp.setText(String.valueOf(weather.getTempCurrent()));
+        viewHolder.tvTemp.setText(String.valueOf(weather.getTempCurrent() + DEGREE_SYMBOL));
 
         Picasso.with(context).load(weather.getWeatherIcon())
                 .into(viewHolder.ivIcon);

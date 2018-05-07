@@ -1,5 +1,6 @@
 package com.example.tin.openweatherforecast;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -21,6 +22,13 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+
+    /*
+     * Needed to make the wind speed more readable for users
+     */
+    String WIND_INTRO;
+    String WIND_UNIT;
+    String DEGREE_SYMBOL;
 
     /*
      * Needed for the RecyclerView
@@ -53,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
         /* Creating The RecyclerView */
         // This will be used to attach the RecyclerView to the MovieAdapter
-        mRecyclerView = (RecyclerView) findViewById(R.id.rV_weatherList);
+        mRecyclerView = findViewById(R.id.rV_weatherList);
         // This will improve performance by stating that changes in the content will not change
         // the child layout size in the RecyclerView
         mRecyclerView.setHasFixedSize(true);
@@ -88,11 +96,15 @@ public class MainActivity extends AppCompatActivity {
                     // Logging the weather ArrayList to see if it's functioning
                     Log.i(TAG, "ArrayList Weather: " + weather);
 
+                    WIND_INTRO = getString(R.string.wind_intro);
+                    WIND_UNIT = getString(R.string.wind_speed_unit);
+                    DEGREE_SYMBOL = getString(R.string.degrees_symbol);
+
                     // Populating the current times weather
                     tvTodayDate.setText(weather.get(0).getCalculateDateTime());
-                    tvTodayTemp.setText((String.valueOf(weather.get(0).getTempCurrent())));
+                    tvTodayTemp.setText((String.valueOf(weather.get(0).getTempCurrent() + DEGREE_SYMBOL)));
                     tvTodayDescription.setText(weather.get(0).getWeatherDescription());
-                    tvTodayWindSpeed.setText((String.valueOf("Wind: " + weather.get(0).getWindSpeed() + "km/h")));
+                    tvTodayWindSpeed.setText((String.valueOf(WIND_INTRO + weather.get(0).getWindSpeed() + WIND_UNIT)));
                     tvTodayWindDirection.setText((String.valueOf(weather.get(0).getWindDegree())));
 
                     Picasso.with(MainActivity.this).load(weather.get(0).getWeatherIcon())
@@ -100,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
 
                     // Connecting the weather ArrayList to the Adapter, and the Adapter to the
                     // RecyclerView
-                    mAdapter = new WeatherAdapter(weather, getApplicationContext());
+                    mAdapter = new WeatherAdapter(weather, getApplicationContext(), DEGREE_SYMBOL);
                     mRecyclerView.setAdapter(mAdapter);
 
 
@@ -109,7 +121,6 @@ public class MainActivity extends AppCompatActivity {
                     * if the SQLite data present, and user conencts to wifi, we want the latest
                     * data to overwrite the SQLite data in the adapter and recyclerView
                     */
-                    //
 
                 }
             });

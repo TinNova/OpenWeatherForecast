@@ -1,3 +1,16 @@
 <resources>
+
+    <!-- App Title -->
     <string name="app_name">OpenWeatherForecast</string>
+
+    <!-- MainActivity.java, WeatherAdapter.java, activity_main.xml, weather_list_item.xml -->
+    <string name="wind_intro">Wind: </string>
+    <string name="wind_speed_unit">km/h</string>
+    <string name="degrees_symbol">&#x2103;</string>
+
+    <!-- activity_main.xml, weather_list_item.xml -->
+
+    <string name="icon_content_desc">Weather icon of the days weather</string>
+
+
 </resources>
