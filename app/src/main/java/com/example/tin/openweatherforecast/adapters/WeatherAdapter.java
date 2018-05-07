@@ -1,4 +1,4 @@
-package com.example.tin.openweatherforecast.Adapters;
+package com.example.tin.openweatherforecast.adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;

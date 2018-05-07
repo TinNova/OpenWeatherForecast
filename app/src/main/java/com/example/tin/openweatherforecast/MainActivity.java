@@ -1,6 +1,5 @@
 package com.example.tin.openweatherforecast;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -9,7 +8,7 @@ import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.tin.openweatherforecast.Adapters.WeatherAdapter;
+import com.example.tin.openweatherforecast.adapters.WeatherAdapter;
 import com.example.tin.openweatherforecast.models.Weather;
 import com.example.tin.openweatherforecast.utilities.NetworkListener;
 import com.example.tin.openweatherforecast.utilities.NetworkConnection;
