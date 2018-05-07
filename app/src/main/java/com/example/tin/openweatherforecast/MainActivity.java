@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
                     tvTodayDate.setText(weather.get(0).getCalculateDateTime());
                     tvTodayTemp.setText((String.valueOf(weather.get(0).getTempCurrent())));
                     tvTodayDescription.setText(weather.get(0).getWeatherDescription());
-                    tvTodayWindSpeed.setText((String.valueOf(weather.get(0).getWindSpeed())));
+                    tvTodayWindSpeed.setText((String.valueOf("Wind: " + weather.get(0).getWindSpeed() + "km/h")));
                     tvTodayWindDirection.setText((String.valueOf(weather.get(0).getWindDegree())));
 
                     Picasso.with(MainActivity.this).load(weather.get(0).getWeatherIcon())
