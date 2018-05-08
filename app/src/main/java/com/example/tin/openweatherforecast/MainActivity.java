@@ -135,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
              */
             NetworkConnection.getInstance(this).getResponseFromHttpUrl(weatherRequestUrl, new NetworkListener() {
                 @Override
-                public void getWeatherArrayList(ArrayList<Weather> weather, ContentValues[] cv) {
+                public void getWeatherArrayList(ArrayList<Weather> weather) {
                     /* Logging the weather ArrayList to see if it's functioning */
                     Log.i(TAG, "ArrayList Weather: " + weather);
 
