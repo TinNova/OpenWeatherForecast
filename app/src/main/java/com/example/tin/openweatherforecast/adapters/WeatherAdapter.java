@@ -1,6 +1,7 @@
 package com.example.tin.openweatherforecast.adapters;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -95,4 +96,5 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHold
 
         }
     }
+
 }

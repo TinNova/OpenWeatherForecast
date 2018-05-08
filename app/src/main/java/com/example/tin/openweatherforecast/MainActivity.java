@@ -3,20 +3,29 @@ package com.example.tin.openweatherforecast;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.tin.openweatherforecast.adapters.WeatherAdapter;
 import com.example.tin.openweatherforecast.models.Weather;
+import com.example.tin.openweatherforecast.sql.WeatherContract;
 import com.example.tin.openweatherforecast.sql.WeatherIntentService;
 import com.example.tin.openweatherforecast.utilities.IntentServiceUtils;
 import com.example.tin.openweatherforecast.utilities.NetworkListener;
@@ -27,13 +36,20 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
     /* Context required to launch IntentService from a non-Activity class */
     Context context;
 
+    /* Constant for logging and referring to a unique loader */
+    private static final int WEATHER_LOADER_ID = 99;
+    /*
+     * 0 = the SQL Loader has never run before, 1 = it has run before, therefore it needs to be reset
+     * before running it again
+     */
+    private int loaderCreated = 0;
 
     /* Strings for the SQL Intent Service */
     public static final String SQL_WEATHER_DATA = "sql_weather_data";
@@ -98,6 +114,8 @@ public class MainActivity extends AppCompatActivity {
         // Creating the mTheCompanies ArrayList<> to avoid a null exception
         mWeather = new ArrayList<>();
 
+        DEGREE_SYMBOL = getString(R.string.degrees_symbol);
+
         //TODO: Check for an internet connection first, if none, then, if SQL data is less than
         //TODO:... 24hrs old display it, else display a no data screen.
 
@@ -116,6 +134,15 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "No Internet Connection", Toast.LENGTH_SHORT).show();
             //TODO: Check if data exists and is under 24hrs old, if Yes == show SQL data, else show no data screen
             //TODO: Query for SQL data have an if statement that checks the date
+
+            /* If an instance of the loader already exists, restart it before loading the SQL data */
+            if (loaderCreated == 1) {
+
+                getSupportLoaderManager().restartLoader(WEATHER_LOADER_ID, null, this);
+            }
+
+            /* Start loading the SQL data */
+            getSupportLoaderManager().initLoader(WEATHER_LOADER_ID, null, this);
 
         }
     }
@@ -139,26 +166,7 @@ public class MainActivity extends AppCompatActivity {
                     /* Logging the weather ArrayList to see if it's functioning */
                     Log.i(TAG, "ArrayList Weather: " + weather);
 
-                    WIND_INTRO = getString(R.string.wind_intro);
-                    WIND_UNIT = getString(R.string.wind_speed_unit);
-                    DEGREE_SYMBOL = getString(R.string.degrees_symbol);
-
-                    /* Populating the current times weather */
-                    tvTodayDate.setText(weather.get(0).getCalculateDateTime());
-                    tvTodayTemp.setText((String.valueOf(weather.get(0).getTempCurrent() + DEGREE_SYMBOL)));
-                    tvTodayDescription.setText(weather.get(0).getWeatherDescription());
-                    tvTodayWindSpeed.setText((String.valueOf(WIND_INTRO + weather.get(0).getWindSpeed() + WIND_UNIT)));
-                    tvTodayWindDirection.setText((String.valueOf(weather.get(0).getWindDegree())));
-
-                    Picasso.with(MainActivity.this).load(weather.get(0).getWeatherIcon())
-                            .into(ivTodayIcon);
-
-                    /*
-                     * Connecting the weather ArrayList to the Adapter, and the Adapter to the
-                     * RecyclerView
-                     */
-                    mAdapter = new WeatherAdapter(weather, getApplicationContext(), DEGREE_SYMBOL);
-                    mRecyclerView.setAdapter(mAdapter);
+                    populateTodaysDate(weather);
 
                     //TODO: Launch this from NetworkConnection, and put as much of it into IntentServiceUtils
                     // TIP: You'll need to pass this activities context within getResponseFromHttpUrl();
@@ -169,7 +177,6 @@ public class MainActivity extends AppCompatActivity {
 
                     saveSqlIntent.putExtras(weatherDataBundle);
                     startService(saveSqlIntent);
-
 
 
                     //TODO: Here delete old data from SQL and save new data
@@ -205,5 +212,194 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /*
+     * The columns of data that we are interested in displaying within our MainActivity's list of
+     * weather data.
+     */
+    public static final String[] WEATHER_FORECAST_PROJECTION = {
+            WeatherContract.WeatherEntry.COLUMN_CALC_DATE,
+            WeatherContract.WeatherEntry.COLUMN_TEMP_CURRENT,
+            WeatherContract.WeatherEntry.COLUMN_WEATHER_DESC,
+            WeatherContract.WeatherEntry.COLUMN_WIND_SPEED,
+            WeatherContract.WeatherEntry.COLUMN_WIND_DEGREE,
+
+    };
+
+
+    /*
+     * Loader which displays weather data saved in SQL database
+     *
+     * @param loaderId The loader ID for which we need to create a loader
+     * @param bundle   Any arguments supplied by the caller
+     * @return A new Loader instance that is ready to start loading.
+     */
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
+        return new AsyncTaskLoader<Cursor>(this) {
+
+            Cursor mSqlWeatherData = null;
+
+            @Override
+            protected void onStartLoading() {
+                if (mSqlWeatherData != null) {
+                    /* Delivers any previously loaded data immediately */
+                    deliverResult(mSqlWeatherData);
+                } else {
+                    /* Force a new load */
+                    forceLoad();
+                }
+            }
+
+            @Nullable
+            @Override
+            public Cursor loadInBackground() {
+
+                Log.d(TAG, "loadInBackground");
+
+                try {
+                    /* This returns every column in every row in ascending order by UnixTimeDate */
+                    return getContentResolver().query(
+                            WeatherContract.WeatherEntry.CONTENT_URI,
+                            null,
+                            null,
+                            null,
+                            WeatherContract.WeatherEntry.COLUMN_UNIX_DATE + " ASC"
+                    );
+                } catch (Exception e) {
+                    Log.e(TAG, "Failed to asynchronously load data.");
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+
+            // deliverResult sends the result of the load, a Cursor, to the registered listener
+            public void deliverResult(Cursor data) {
+                mSqlWeatherData = data;
+                super.deliverResult(data);
+            }
+        };
+    }
+
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
+        /* Here We Are Accessing The SQLite Query We Received In The Method getSqlCompanies() Which Is Set To Read All Rows
+         * We're Going Through Each Row With A For Loop And Putting Them Into Our FavouriteMovie Model
+         *
+         * @param cursor
+         */
+        if (data != null && data.getCount() > 0) {
+            data.moveToFirst();
+            for (int count = 0; count < data.getCount(); count++) {
+
+                Weather weather = new Weather(
+
+                        data.getInt(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_UNIX_DATE)),
+                        data.getString(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_CALC_DATE)),
+                        data.getDouble(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_TEMP_CURRENT)),
+                        data.getDouble(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_TEMP_MIN)),
+                        data.getDouble(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_TEMP_MAX)),
+                        /*
+                         * Below should be the weatherTitle, but it hasn't been saved to SQL so
+                         * weatherDescription is being used again
+                         */
+                        data.getString(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_WEATHER_DESC)),
+                        data.getString(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_WEATHER_DESC)),
+                        data.getString(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_ICON_ID)),
+                        data.getDouble(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_WIND_SPEED)),
+                        data.getDouble(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_WIND_DEGREE))
+
+                );
+
+                Log.d(TAG, "Row_Id" + data.getLong(data.getColumnIndex(WeatherContract.WeatherEntry._ID)));
+
+                mWeather.add(weather);
+
+                Log.d(TAG, "DATA LOADED BY onLoadFinished: " + mWeather);
+
+                data.moveToNext();
+            }
+
+            //TODO: HERE, INSERT LOGIC: If UnixTimeDate of 0th item is more than 24hrs old, show No Data Screen!! Else continue with Adapter if statement.
+            /* if Adapter is not empty, update the adapter */
+            if (mAdapter != null) {
+
+                // Update the adapter with the new list
+                mAdapter.notifyDataSetChanged();
+
+            } else {
+
+                populateTodaysDate(mWeather);
+
+            }
+
+            loaderCreated = 1;
+
+
+        } else {
+            Log.v(TAG, "cursor is Empty");
+            //TODO: WHEN CURSOR IS EMPTY, LAUNCH THE NO DATA SCREEN!!
+        }
+
+        assert data != null;
+        data.close();
+    }
+
+    /*
+     * Called when a previously created loader is being reset, and thus
+     * making its data unavailable.
+     * onLoaderReset removes any references this activity had to the loader's data.
+     *
+     * @param loader The Loader that is being reset.
+     */
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+    }
+
+
+    //TODO: Implement these methods!
+    /* Show Loading Indicator / Hide Weather Data */
+//    private void showLoading() {
+//        /* Then, hide the weather data */
+//        mRecyclerView.setVisibility(View.INVISIBLE);
+//        /* Finally, show the loading indicator */
+//        mLoadingIndicator.setVisibility(View.VISIBLE);
+//    }
+//
+//    /* Hide Loading Indicator / Show Weather Data */
+//    private void showWeatherDataView() {
+//        /* First, hide the loading indicator */
+//        mLoadingIndicator.setVisibility(View.INVISIBLE);
+//        /* Finally, make sure the weather data is visible */
+//        mRecyclerView.setVisibility(View.VISIBLE);
+//    }
+
+    /* Helper Class that populates today's feature date and passes weather ArrayList to WeatherAdapter */
+    private void populateTodaysDate(ArrayList<Weather> weather) {
+
+        WIND_INTRO = getString(R.string.wind_intro);
+        WIND_UNIT = getString(R.string.wind_speed_unit);
+        DEGREE_SYMBOL = getString(R.string.degrees_symbol);
+
+                    /* Populating the current times weather */
+        tvTodayDate.setText(weather.get(0).getCalculateDateTime());
+        tvTodayTemp.setText((String.valueOf(weather.get(0).getTempCurrent() + DEGREE_SYMBOL)));
+        tvTodayDescription.setText(weather.get(0).getWeatherDescription());
+        tvTodayWindSpeed.setText((String.valueOf(WIND_INTRO + weather.get(0).getWindSpeed() + WIND_UNIT)));
+        tvTodayWindDirection.setText((String.valueOf(weather.get(0).getWindDegree())));
+
+        Picasso.with(MainActivity.this).load(weather.get(0).getWeatherIcon())
+                .into(ivTodayIcon);
+
+                    /*
+                     * Connecting the weather ArrayList to the Adapter, and the Adapter to the
+                     * RecyclerView
+                     */
+        mAdapter = new WeatherAdapter(weather, getApplicationContext(), DEGREE_SYMBOL);
+        mRecyclerView.setAdapter(mAdapter);
+
+    }
 
 }
