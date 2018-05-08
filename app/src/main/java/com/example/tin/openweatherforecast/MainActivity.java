@@ -20,6 +20,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -84,10 +85,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     TextView tvTodayWindSpeed;
     TextView tvTodayWindDirection;
     ImageView ivTodayIcon;
+    Button btnRefreshData;
 
     ConstraintLayout mWeatherUi;
     ProgressBar mLoadingIndicator;
     TextView tvNoData;
+
+    ImageView ivUpdate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +99,42 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         setContentView(R.layout.activity_main);
 
         context = MainActivity.this;
+
+        /* Buttons */
+        btnRefreshData = findViewById(R.id.bt_refresh);
+        ivUpdate = (ImageView) findViewById(R.id.iV_updateData);
+
+
+        btnRefreshData.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                /* If the connManager and networkInfo is NOT null, start the login() method */
+                if (mConnectionManager != null)
+                    mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
+                if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
+
+                    showLoading();
+                    getData();
+
+                } else {
+
+                    Toast.makeText(MainActivity.this, "No Internet Connection", Toast.LENGTH_SHORT).show();
+
+                }
+            }
+        });
+
+
+        ivUpdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                getData();
+
+            }
+        });
+
 
         mWeatherUi = findViewById(R.id.l_weatherUi);
         mLoadingIndicator = findViewById(R.id.pB_loading_indicator);
@@ -417,6 +457,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private void showWeatherDataView() {
         /* Hide the loading indicator */
         mLoadingIndicator.setVisibility(View.INVISIBLE);
+        /* Hide the No Data Text */
+        tvNoData.setVisibility(View.INVISIBLE);
+        /* Hide refresh button */
+        btnRefreshData.setVisibility(View.INVISIBLE);
         /* Show the weather data UI */
         mWeatherUi.setVisibility(View.VISIBLE);
     }
@@ -427,16 +471,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         mWeatherUi.setVisibility(View.INVISIBLE);
         /* Hide the loading indicator */
         mLoadingIndicator.setVisibility(View.INVISIBLE);
+        /* Show refresh button */
+        btnRefreshData.setVisibility(View.VISIBLE);
         /* Show the No Data Text */
         tvNoData.setVisibility(View.VISIBLE);
-    }
 
-    /* Show the Weather Data Screen / Hide the No Data Screen */
-    private void hideNoDataScreen() {
-        /* Hide the No Data Text */
-        tvNoData.setVisibility(View.INVISIBLE);
-        /* Show the weather data UI */
-        mWeatherUi.setVisibility(View.VISIBLE);
     }
 
 }
