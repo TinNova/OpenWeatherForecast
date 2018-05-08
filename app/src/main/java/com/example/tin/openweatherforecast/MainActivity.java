@@ -9,6 +9,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.CursorLoader;
@@ -20,6 +21,7 @@ import android.util.Log;
 
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,6 +29,7 @@ import com.example.tin.openweatherforecast.adapters.WeatherAdapter;
 import com.example.tin.openweatherforecast.models.Weather;
 import com.example.tin.openweatherforecast.sql.WeatherContract;
 import com.example.tin.openweatherforecast.sql.WeatherIntentService;
+import com.example.tin.openweatherforecast.utilities.DateUtils;
 import com.example.tin.openweatherforecast.utilities.IntentServiceUtils;
 import com.example.tin.openweatherforecast.utilities.NetworkListener;
 import com.example.tin.openweatherforecast.utilities.NetworkConnection;
@@ -82,6 +85,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     TextView tvTodayWindDirection;
     ImageView ivTodayIcon;
 
+    ConstraintLayout mWeatherUi;
+    ProgressBar mLoadingIndicator;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,6 +95,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         context = MainActivity.this;
 
+        mWeatherUi = findViewById(R.id.l_weatherUi);
+        mLoadingIndicator = findViewById(R.id.pB_loading_indicator);
         tvTodayDate = findViewById(R.id.tV_todayDate);
         tvTodayTemp = findViewById(R.id.tV_todayTemp);
         tvTodayDescription = findViewById(R.id.tV_todayDescription);
@@ -114,8 +122,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         // Creating the mTheCompanies ArrayList<> to avoid a null exception
         mWeather = new ArrayList<>();
 
+        /* The celsius degree symbol */
         DEGREE_SYMBOL = getString(R.string.degrees_symbol);
 
+        /* Shows loading screen and hides the UI that contains weather data */
+        showLoading();
         //TODO: Check for an internet connection first, if none, then, if SQL data is less than
         //TODO:... 24hrs old display it, else display a no data screen.
 
@@ -322,25 +333,43 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 data.moveToNext();
             }
 
-            //TODO: HERE, INSERT LOGIC: If UnixTimeDate of 0th item is more than 24hrs old, show No Data Screen!! Else continue with Adapter if statement.
-            /* if Adapter is not empty, update the adapter */
-            if (mAdapter != null) {
+            /* The last time SQL was updated */
+            int unixTimeDate = mWeather.get(0).getUnixDateTime();
+            String lastUpdateDateTime = DateUtils.convertUnixDateToHumanReadable(unixTimeDate);
+            String dateNow = DateUtils.getTodaysDateHumanReadable();
+            int dateNowUnix = DateUtils.getTodaysDateInUnix();
 
-                // Update the adapter with the new list
-                mAdapter.notifyDataSetChanged();
+            /* If the last update was more than 24hrs ago */
+            if (dateNowUnix - unixTimeDate >= 1440 * 60 * 1000) {
+
+                //TODO: SHOW NO DATA SCREEN!!
 
             } else {
 
-                populateTodaysDate(mWeather);
+                /* if Adapter is not empty, update the adapter */
+                if (mAdapter != null) {
+
+                    // Update the adapter with the new list
+                    mAdapter.notifyDataSetChanged();
+                    showWeatherDataView();
+
+                } else {
+
+                    populateTodaysDate(mWeather);
+
+                }
+
+                loaderCreated = 1;
+
 
             }
 
-            loaderCreated = 1;
-
-
+            /* Cursor is empty, show no data screen */
         } else {
+
             Log.v(TAG, "cursor is Empty");
-            //TODO: WHEN CURSOR IS EMPTY, LAUNCH THE NO DATA SCREEN!!
+
+            //TODO: SHOW NO DATA SCREEN!!
         }
 
         assert data != null;
@@ -358,23 +387,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public void onLoaderReset(Loader<Cursor> loader) {
     }
 
-
-    //TODO: Implement these methods!
-    /* Show Loading Indicator / Hide Weather Data */
-//    private void showLoading() {
-//        /* Then, hide the weather data */
-//        mRecyclerView.setVisibility(View.INVISIBLE);
-//        /* Finally, show the loading indicator */
-//        mLoadingIndicator.setVisibility(View.VISIBLE);
-//    }
-//
-//    /* Hide Loading Indicator / Show Weather Data */
-//    private void showWeatherDataView() {
-//        /* First, hide the loading indicator */
-//        mLoadingIndicator.setVisibility(View.INVISIBLE);
-//        /* Finally, make sure the weather data is visible */
-//        mRecyclerView.setVisibility(View.VISIBLE);
-//    }
 
     /* Helper Class that populates today's feature date and passes weather ArrayList to WeatherAdapter */
     private void populateTodaysDate(ArrayList<Weather> weather) {
@@ -400,6 +412,25 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         mAdapter = new WeatherAdapter(weather, getApplicationContext(), DEGREE_SYMBOL);
         mRecyclerView.setAdapter(mAdapter);
 
+        showWeatherDataView();
+
+    }
+
+    //TODO: Implement these methods!
+    /* Show Loading Indicator / Hide Weather Data */
+    private void showLoading() {
+        /* Hide the weather data UI */
+        mWeatherUi.setVisibility(View.INVISIBLE);
+        /* Show the loading indicator */
+        mLoadingIndicator.setVisibility(View.VISIBLE);
+    }
+
+    /* Hide Loading Indicator / Show Weather Data */
+    private void showWeatherDataView() {
+        /* Hide the loading indicator */
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+        /* Show the weather data UI */
+        mWeatherUi.setVisibility(View.VISIBLE);
     }
 
 }

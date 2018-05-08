@@ -24,6 +24,14 @@ public class DateUtils {
         return date;
     }
 
+    public static int getTodaysDateInUnix() {
+        Date date = Calendar.getInstance().getTime();
+
+        int unix = (int) date.getTime();
+
+        return unix;
+    }
+
     /* Converts Unix DateTime to a human readable format */
     public static String convertUnixDateToHumanReadable(int unixDate) {
         int unixInMilliseconds = (unixDate) * 1000;// its need to be in milisecond
