@@ -32,5 +32,9 @@
             android:authorities="com.example.tin.openweatherforecast"
             android:exported="false" />
 
+        <service
+            android:name=".sql.WeatherIntentService"
+            android:exported="false" />
+
     </application>
 </manifest>

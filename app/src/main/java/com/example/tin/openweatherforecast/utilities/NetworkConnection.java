@@ -15,10 +15,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.MalformedURLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 
 public class NetworkConnection {
@@ -112,9 +109,11 @@ public class NetworkConnection {
                     String todaysDate = DateUtils.getTodaysDateHumanReadable();
                     Log.d(TAG, "Today's Date: " + todaysDate);
 
-                    // Define the "list" JsonArray as a JSONArray
+
+                    /* Define the "list" JsonArray as a JSONArray */
                     JSONArray listJsonArray = openWeatherJsonObject.getJSONArray(OWN_JSON_LIST);
-                    // Using a for loop to cycle through each JsonObject within the listJsonArray
+
+                    /* Using a for loop to cycle through each JsonObject within the listJsonArray */
                     for (int i = 0; i < listJsonArray.length(); i++) {
 
                         // Get the ith forecast in the JSON and define it as a JsonObject
@@ -168,6 +167,11 @@ public class NetworkConnection {
                         //TODO:... Logic: Then take the highest high, lowest low and combine it
                         //TODO:... Logic... with the Midday data containing (icon, wind, desc ect...)
                         //TODO: DateUtils has been added to help with this.
+                        /*
+                         * if statement ensures we only take the midday data for each day, except
+                         * if it is the current day, in which case we will take the current data
+                         * and the midday data if it is before midday.
+                         */
                         if (i == 0 || calculateDateTime.contains(MIDDAY)) {
 
                             Weather weather = new Weather(
@@ -186,13 +190,13 @@ public class NetworkConnection {
                             mWeather.add(weather);
                             Log.d(TAG, "Weather List: " + weather);
 
+
                         }
 
                     }
 
                     // Send mWeather ArrayList to MainActivity
                     listener.getWeatherArrayList(mWeather);
-
 
                 } catch (JSONException e) {
                     e.printStackTrace();

@@ -1,6 +1,8 @@
 package com.example.tin.openweatherforecast;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -15,6 +17,8 @@ import android.widget.Toast;
 
 import com.example.tin.openweatherforecast.adapters.WeatherAdapter;
 import com.example.tin.openweatherforecast.models.Weather;
+import com.example.tin.openweatherforecast.sql.WeatherIntentService;
+import com.example.tin.openweatherforecast.utilities.IntentServiceUtils;
 import com.example.tin.openweatherforecast.utilities.NetworkListener;
 import com.example.tin.openweatherforecast.utilities.NetworkConnection;
 import com.example.tin.openweatherforecast.utilities.NetworkUtils;
@@ -26,6 +30,13 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+
+    /* Context required to launch IntentService from a non-Activity class */
+    Context context;
+
+
+    /* Strings for the SQL Intent Service */
+    public static final String SQL_WEATHER_DATA = "sql_weather_data";
 
     // Used to check if the device has internet connection
     private ConnectivityManager mConnectionManager;
@@ -59,6 +70,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        context = MainActivity.this;
 
         tvTodayDate = findViewById(R.id.tV_todayDate);
         tvTodayTemp = findViewById(R.id.tV_todayTemp);
@@ -102,6 +115,8 @@ public class MainActivity extends AppCompatActivity {
 
             Toast.makeText(this, "No Internet Connection", Toast.LENGTH_SHORT).show();
             //TODO: Check if data exists and is under 24hrs old, if Yes == show SQL data, else show no data screen
+            //TODO: Query for SQL data have an if statement that checks the date
+
         }
     }
 
@@ -120,15 +135,15 @@ public class MainActivity extends AppCompatActivity {
              */
             NetworkConnection.getInstance(this).getResponseFromHttpUrl(weatherRequestUrl, new NetworkListener() {
                 @Override
-                public void getWeatherArrayList(ArrayList<Weather> weather) {
-                    // Logging the weather ArrayList to see if it's functioning
+                public void getWeatherArrayList(ArrayList<Weather> weather, ContentValues[] cv) {
+                    /* Logging the weather ArrayList to see if it's functioning */
                     Log.i(TAG, "ArrayList Weather: " + weather);
 
                     WIND_INTRO = getString(R.string.wind_intro);
                     WIND_UNIT = getString(R.string.wind_speed_unit);
                     DEGREE_SYMBOL = getString(R.string.degrees_symbol);
 
-                    // Populating the current times weather
+                    /* Populating the current times weather */
                     tvTodayDate.setText(weather.get(0).getCalculateDateTime());
                     tvTodayTemp.setText((String.valueOf(weather.get(0).getTempCurrent() + DEGREE_SYMBOL)));
                     tvTodayDescription.setText(weather.get(0).getWeatherDescription());
@@ -138,16 +153,30 @@ public class MainActivity extends AppCompatActivity {
                     Picasso.with(MainActivity.this).load(weather.get(0).getWeatherIcon())
                             .into(ivTodayIcon);
 
-                    // Connecting the weather ArrayList to the Adapter, and the Adapter to the
-                    // RecyclerView
+                    /*
+                     * Connecting the weather ArrayList to the Adapter, and the Adapter to the
+                     * RecyclerView
+                     */
                     mAdapter = new WeatherAdapter(weather, getApplicationContext(), DEGREE_SYMBOL);
                     mRecyclerView.setAdapter(mAdapter);
+
+                    //TODO: Launch this from NetworkConnection, and put as much of it into IntentServiceUtils
+                    // TIP: You'll need to pass this activities context within getResponseFromHttpUrl();
+                    /* Save Weather ContentValues to Bundle */
+                    Bundle weatherDataBundle = IntentServiceUtils.saveWeatherDataToSql(weather);
+                    /* Send Bundle to the SqlIntentService to be saved in SQLite */
+                    Intent saveSqlIntent = new Intent(MainActivity.this, WeatherIntentService.class);
+
+                    saveSqlIntent.putExtras(weatherDataBundle);
+                    startService(saveSqlIntent);
+
+
 
                     //TODO: Here delete old data from SQL and save new data
 
                     //TODO: DO THIS NEXT AFTER THE PARK!!!!!
                     /**
-                     * if networkConnection == true {download data, then save to SQL within IntentService}
+                     * if networkConnection == true {download data, then save to SQL within WeatherIntentService}
                      * else if networkConnection == false {display no internet msg, and load SQL}
                      * else if SQL data not existent or older than 24hrs {show no data screen}
                      *
