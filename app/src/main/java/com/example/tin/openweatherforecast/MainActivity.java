@@ -87,6 +87,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     ConstraintLayout mWeatherUi;
     ProgressBar mLoadingIndicator;
+    TextView tvNoData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         mWeatherUi = findViewById(R.id.l_weatherUi);
         mLoadingIndicator = findViewById(R.id.pB_loading_indicator);
+        tvNoData = findViewById(R.id.tV_noData);
         tvTodayDate = findViewById(R.id.tV_todayDate);
         tvTodayTemp = findViewById(R.id.tV_todayTemp);
         tvTodayDescription = findViewById(R.id.tV_todayDescription);
@@ -127,8 +129,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         /* Shows loading screen and hides the UI that contains weather data */
         showLoading();
-        //TODO: Check for an internet connection first, if none, then, if SQL data is less than
-        //TODO:... 24hrs old display it, else display a no data screen.
 
         // Checking If The Device Is Connected To The Internet
         mConnectionManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -143,8 +143,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         } else {
 
             Toast.makeText(this, "No Internet Connection", Toast.LENGTH_SHORT).show();
-            //TODO: Check if data exists and is under 24hrs old, if Yes == show SQL data, else show no data screen
-            //TODO: Query for SQL data have an if statement that checks the date
 
             /* If an instance of the loader already exists, restart it before loading the SQL data */
             if (loaderCreated == 1) {
@@ -188,31 +186,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
                     saveSqlIntent.putExtras(weatherDataBundle);
                     startService(saveSqlIntent);
-
-
-                    //TODO: Here delete old data from SQL and save new data
-
-                    //TODO: DO THIS NEXT AFTER THE PARK!!!!!
-                    /**
-                     * if networkConnection == true {download data, then save to SQL within WeatherIntentService}
-                     * else if networkConnection == false {display no internet msg, and load SQL}
-                     * else if SQL data not existent or older than 24hrs {show no data screen}
-                     *
-                     *
-                     *
-                     *
-                     *
-                     *
-                     *
-                     *
-                     *
-                     *
-                     */
-                    /*
-                    * Used to update the adapter when information is there already, for example
-                    * if the SQLite data present, and user conencts to wifi, we want the latest
-                    * data to overwrite the SQLite data in the adapter and recyclerView
-                    */
 
                 }
             });
@@ -292,7 +265,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         };
     }
 
-
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
@@ -333,16 +305,17 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 data.moveToNext();
             }
 
-            /* The last time SQL was updated */
+            /* The last time SQL was updated and the current time in Unix */
             int unixTimeDate = mWeather.get(0).getUnixDateTime();
-            String lastUpdateDateTime = DateUtils.convertUnixDateToHumanReadable(unixTimeDate);
-            String dateNow = DateUtils.getTodaysDateHumanReadable();
             int dateNowUnix = DateUtils.getTodaysDateInUnix();
 
             /* If the last update was more than 24hrs ago */
             if (dateNowUnix - unixTimeDate >= 1440 * 60 * 1000) {
 
-                //TODO: SHOW NO DATA SCREEN!!
+                /* Delete data from SQL as it's older than 24hrs */
+                showNoDataScreen();
+                /* Data in SQL is over 24hrs and there's no internet, show no data screen */
+                deleteWeatherData();
 
             } else {
 
@@ -364,12 +337,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
             }
 
-            /* Cursor is empty, show no data screen */
+            /* Cursor is empty and there is no internet connection, show no data screen */
         } else {
 
+            showNoDataScreen();
             Log.v(TAG, "cursor is Empty");
 
-            //TODO: SHOW NO DATA SCREEN!!
         }
 
         assert data != null;
@@ -405,10 +378,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         Picasso.with(MainActivity.this).load(weather.get(0).getWeatherIcon())
                 .into(ivTodayIcon);
 
-                    /*
-                     * Connecting the weather ArrayList to the Adapter, and the Adapter to the
-                     * RecyclerView
-                     */
+        /*
+         * Connecting the weather ArrayList to the Adapter, and the Adapter to the
+         * RecyclerView
+         */
         mAdapter = new WeatherAdapter(weather, getApplicationContext(), DEGREE_SYMBOL);
         mRecyclerView.setAdapter(mAdapter);
 
@@ -416,7 +389,22 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     }
 
-    //TODO: Implement these methods!
+    /*
+     * Method which deletes the data from the SQLite database
+     * - It takes a long as the input which is the ID of the Row
+     * - It returns a boolean to say if the deletion was successful or not
+     */
+    private void deleteWeatherData() {
+
+        /* This is the URI required to delete all of the data */
+        Uri uri = WeatherContract.WeatherEntry.CONTENT_URI;
+
+        getContentResolver().delete(uri, null, null);
+
+        Toast.makeText(getBaseContext(), uri.toString(), Toast.LENGTH_LONG).show();
+        Log.d(TAG, "REMOVE: " + getBaseContext() + uri.toString());
+    }
+
     /* Show Loading Indicator / Hide Weather Data */
     private void showLoading() {
         /* Hide the weather data UI */
@@ -429,6 +417,24 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private void showWeatherDataView() {
         /* Hide the loading indicator */
         mLoadingIndicator.setVisibility(View.INVISIBLE);
+        /* Show the weather data UI */
+        mWeatherUi.setVisibility(View.VISIBLE);
+    }
+
+    /* Show the No Data Screen / Hide Weather Data Screen */
+    private void showNoDataScreen() {
+        /* Hide the weather data UI */
+        mWeatherUi.setVisibility(View.INVISIBLE);
+        /* Hide the loading indicator */
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+        /* Show the No Data Text */
+        tvNoData.setVisibility(View.VISIBLE);
+    }
+
+    /* Show the Weather Data Screen / Hide the No Data Screen */
+    private void hideNoDataScreen() {
+        /* Hide the No Data Text */
+        tvNoData.setVisibility(View.INVISIBLE);
         /* Show the weather data UI */
         mWeatherUi.setVisibility(View.VISIBLE);
     }

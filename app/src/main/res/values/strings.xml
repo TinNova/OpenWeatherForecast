@@ -9,8 +9,12 @@
     <string name="degrees_symbol">&#x2103;</string>
 
     <!-- activity_main.xml, weather_list_item.xml -->
-
     <string name="icon_content_desc">Weather icon of the days weather</string>
+
+    <!-- activity_main.xml -->
+    <string name="no_data_text">There is no data to display</string>
+
+
 
 
 </resources>
