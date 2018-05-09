@@ -220,52 +220,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         });
     }
 
-
     /* Requesting the latitude and longitude of the device */
-    private void requestLocationFromDevice() {
-
-        double[] deviceLocationArray = getLonLat();
-
-        /* If there wasn't an error in getting the lat/lon, continue else, launch the SQL data */
-        if (!Objects.equals(deviceLocationArray[0], UPDATE_LOCATION_ERROR)) {
-            mLat = deviceLocationArray[0];
-            mLon = deviceLocationArray[1];
-
-        } else {
-
-            Toast.makeText(MainActivity.this, getString(R.string.no_gps), Toast.LENGTH_SHORT).show();
-
-            /* If an instance of the loader already exists, restart it before loading the SQL data */
-            if (loaderCreated == 1) {
-
-                getSupportLoaderManager().restartLoader(WEATHER_LOADER_ID, null, this);
-            }
-
-            /* Start loading the SQL data */
-            getSupportLoaderManager().initLoader(WEATHER_LOADER_ID, null, this);
-
-        }
-    }
-
-    /* Code that runs when Permission to use Location has been granted */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED) {
-
-                Log.d(TAG, "CODE RAN Allowed Access to Location");
-
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_UPDATE_TIME, LOCATION_UPDATE_DISTANCE, locationListener);
-                location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                updateLocation(location);
-            }
-        }
-    }
-
     @SuppressLint("MissingPermission")
     private double[] getLonLat() {
 
@@ -339,6 +294,25 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
 
         return (deviceLocation);
+    }
+
+    /* Code that runs when Permission to use Location has been granted */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) {
+
+                Log.d(TAG, "CODE RAN Allowed Access to Location");
+
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_UPDATE_TIME, LOCATION_UPDATE_DISTANCE, locationListener);
+                location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                updateLocation(location);
+            }
+        }
     }
 
     private double[] updateLocation(Location location) {
@@ -665,14 +639,35 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
         if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
 
-                    /* if GPS is enabled */
+            /* if GPS is enabled */
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
 
-                        /* Shows loading screen and hides the UI that contains weather data */
+                /* Shows loading screen and hides the UI that contains weather data */
                 showLoading();
-                        /* Requesting the Latitude and Longitude of the device */
-                requestLocationFromDevice();
-                getData(mLat, mLon);
+                /* Requesting the Latitude and Longitude of the device */
+                double[] deviceLocationArray = getLonLat();
+
+                /* If there wasn't an error in getting the lat/lon, continue else, launch the SQL data */
+                if (!Objects.equals(deviceLocationArray[0], UPDATE_LOCATION_ERROR)) {
+                    double deviceLat = deviceLocationArray[0];
+                    double deviceLon = deviceLocationArray[1];
+
+                    getData(deviceLat, deviceLon);
+
+                } else {
+
+                    Toast.makeText(MainActivity.this, getString(R.string.no_gps), Toast.LENGTH_SHORT).show();
+
+                    /* If an instance of the loader already exists, restart it before loading the SQL data */
+                    if (loaderCreated == 1) {
+
+                        getSupportLoaderManager().restartLoader(WEATHER_LOADER_ID, null, this);
+                    }
+
+                    /* Start loading the SQL data */
+                    getSupportLoaderManager().initLoader(WEATHER_LOADER_ID, null, this);
+
+                }
 
             } else {
 
