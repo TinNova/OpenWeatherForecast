@@ -2,7 +2,6 @@ package com.example.tin.openweatherforecast;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -71,6 +70,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private ConnectivityManager mConnectionManager;
     private NetworkInfo mNetworkInfo;
 
+    private int LOCATION_UPDATE_TIME = 100000;
+    private int LOCATION_UPDATE_DISTANCE = 100000;
+
     /*
      * Needed to make the wind speed more readable for users in UI
      */
@@ -108,6 +110,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private LocationListener locationListener;
     Location location;
 
+    private Double lat;
+    private Double lon;
+
     @SuppressLint("MissingPermission")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,6 +125,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         btnRefreshData = findViewById(R.id.bt_refresh);
         ivUpdate = (ImageView) findViewById(R.id.iV_updateData);
 
+        /* Requesting the Latitude and Longitude of the device */
+        requestLocationFromDevice();
 
         btnRefreshData.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -130,12 +137,14 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
                 if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
 
-                    showLoading();
-                    getLonLat();
+                    /* Getting an updated Latitude and Longitude from the device */
+                    requestLocationFromDevice();
+                    /* Getting the data and passing in the updated lat and lon of the deivce */
+                    getData(lon, lat);
 
                 } else {
 
-                    Toast.makeText(MainActivity.this, "No Internet Connection", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
 
                 }
             }
@@ -151,11 +160,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
                 if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
 
+                    requestLocationFromDevice();
+                    getData(lon, lat);
 
-                    getLonLat();
                 } else {
 
-                    Toast.makeText(MainActivity.this, "No Internet Connection", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
 
                 }
 
@@ -206,11 +216,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
         if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
 
-            getLonLat();
+            getData(lon, lat);
 
         } else {
 
-            Toast.makeText(this, "No Internet Connection", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
 
             /* If an instance of the loader already exists, restart it before loading the SQL data */
             if (loaderCreated == 1) {
@@ -224,18 +234,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
     }
 
-    private void updateLocation(Location location) {
-        Log.d(TAG, "Lat: " + location.getLatitude());
-        Log.d(TAG, "Lon: " + location.getLongitude());
-        Log.d(TAG, "updateLocation CODE RAN ");
-
-        Double lon = location.getLongitude();
-        Double lat = location.getLatitude();
-
-        getData(lon, lat);
-
-
+    /* Requesting the latitude and longitude of the device */
+    private void requestLocationFromDevice() {
+        Double[] deviceLocationArray = getLonLat();
+        lat = deviceLocationArray[0];
+        lon = deviceLocationArray[1];
     }
+
 
     /* Code that runs when Permission to use Location has been granted */
     @Override
@@ -249,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
                 Log.d(TAG, "CODE RAN Allowed Access to Location");
 
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_UPDATE_TIME, LOCATION_UPDATE_DISTANCE, locationListener);
                 location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 updateLocation(location);
             }
@@ -257,7 +262,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     @SuppressLint("MissingPermission")
-    private void getLonLat() {
+    private Double[] getLonLat() {
+
+        Double[] deviceLocation = new Double[0];
 
         locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
         locationListener = new LocationListener() {
@@ -291,9 +298,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         /* If build version is less than Marshmallow skip permission check */
         if (Build.VERSION.SDK_INT < 23) {
 
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_UPDATE_TIME, LOCATION_UPDATE_DISTANCE, locationListener);
             location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            updateLocation(location);
+
+            deviceLocation = updateLocation(location);
+            //updateLocation(location);
 
         } else {
 
@@ -317,11 +326,22 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             /* We already have permission, so get the devices location */
             } else {
 
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_UPDATE_TIME, LOCATION_UPDATE_DISTANCE, locationListener);
                 location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                updateLocation(location);
+                deviceLocation = updateLocation(location);
             }
         }
+
+        return (deviceLocation);
+    }
+
+    private Double[] updateLocation(Location location) {
+
+        Double updateLocationLat = location.getLatitude();
+        Double updateLocationLon = location.getLongitude();
+
+        return new Double[]{updateLocationLat, updateLocationLon};
+
     }
 
     private void getData(Double lon, Double lat) {
@@ -363,20 +383,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             e.printStackTrace();
         }
     }
-
-    /*
-     * The columns of data that we are interested in displaying within our MainActivity's list of
-     * weather data.
-     */
-    public static final String[] WEATHER_FORECAST_PROJECTION = {
-            WeatherContract.WeatherEntry.COLUMN_CALC_DATE,
-            WeatherContract.WeatherEntry.COLUMN_TEMP_CURRENT,
-            WeatherContract.WeatherEntry.COLUMN_WEATHER_DESC,
-            WeatherContract.WeatherEntry.COLUMN_WIND_SPEED,
-            WeatherContract.WeatherEntry.COLUMN_WIND_DEGREE,
-
-    };
-
 
     /*
      * Loader which displays weather data saved in SQL database
