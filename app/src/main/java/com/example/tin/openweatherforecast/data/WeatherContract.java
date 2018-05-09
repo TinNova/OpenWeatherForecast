@@ -26,7 +26,7 @@ public class WeatherContract {
     public static final class WeatherEntry implements BaseColumns {
 
         /*
-         * WeatherEntry content URI = BASE_CONTENT_URI + PATH_FAVOURITE_COMPANIES
+         * WeatherEntry content URI = BASE_CONTENT_URI + PATH_WEATHER
          * content://com.example.tin.openweatherforecast
          */
         public static final Uri CONTENT_URI =

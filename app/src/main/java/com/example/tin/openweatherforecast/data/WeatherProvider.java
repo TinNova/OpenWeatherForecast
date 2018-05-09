@@ -14,9 +14,9 @@ import static com.example.tin.openweatherforecast.data.WeatherContract.WeatherEn
 
 public class WeatherProvider extends ContentProvider {
 
-    /* Defining final integer constants for the directory of favouritesMovies and a single Item
-     * It's convention to use 100, 200, 300 ect for directories,
-     * and related ints (101, 102, ..) for items in that directory.
+    /*
+     * Defining final integer constants for the directory of favouritesMovies and a single Item
+     * although a single item is never used, we keeping it in case a detailActivity is created
      */
     private static final int CODE_WEATHER = 100;
     private static final int CODE_WEATHER_WITH_ID = 101;
@@ -35,12 +35,12 @@ public class WeatherProvider extends ContentProvider {
         /*
          * Add matches with addURI (String authority, String path, int code), this means we are adding the Uri
          * This is for an entire directory
-         * content://com.example.tin.robotic/favouriteCompanies/100
+         * content://com.example.tin.openweatherforecast/100
          */
         uriMatcher.addURI(WeatherContract.AUTHORITY, WeatherContract.PATH_WEATHER, CODE_WEATHER);
         /*
          * This is for a single item
-         * content://com.example.tin.robotic/favouriteCompanies/2/101
+         * content://com.example.tin.openweatherforecast/2/101
          */
         uriMatcher.addURI(WeatherContract.AUTHORITY, WeatherContract.PATH_WEATHER + "/#", CODE_WEATHER_WITH_ID);
 
@@ -86,8 +86,8 @@ public class WeatherProvider extends ContentProvider {
                 break;
 
                 /* Default Exception */
-                default:
-                    throw new UnsupportedOperationException("Unknown uri: " + uri);
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
 
         }
 
@@ -115,14 +115,8 @@ public class WeatherProvider extends ContentProvider {
                 int rowsInserted = 0;
                 try {
                     for (ContentValues value : values) {
-//                        long weatherDate =
-//                                value.getAsLong(WeatherContract.WeatherEntry.COLUMN_UNIX_DATE);
 
                         //TODO: Ensure that the date is normalised before saving to SQL
-                        /* If data is NOT Normalised, then IllegalArgumentExcpetion will be thrown*/
-//                        if (!SunshineDateUtils.isDateNormalized(weatherDate)) {
-//                            throw new IllegalArgumentException("Date must be normalized to insert");
-//                        }
 
                         long _id = db.insert(WeatherContract.WeatherEntry.TABLE_NAME, null, value);
                         if (_id != -1) {
