@@ -677,7 +677,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
             tvLocation.setText((String.valueOf(LATITUDE + " " + roundedLat + ", " + LONGITUDE + " " + roundedLon)));
 
-            tvLastDataUpdated.setText(UPDATED + " " + DateUtils.getTodaysDateMonthHourMinute());
+            tvLastDataUpdated.setText(UPDATED + " " + DateUtils.getTodaysDateFormat02());
 
 
         }
@@ -764,7 +764,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         SharedPreferences.Editor sharedPrefEditor = sharedPref.edit();
         sharedPrefEditor.putString(SHARED_PREF_LAT, String.valueOf(roundedLat));
         sharedPrefEditor.putString(SHARED_PREF_LON, String.valueOf(roundedLon));
-        sharedPrefEditor.putString(SHARED_PREF_LAST_UPDATE, DateUtils.getTodaysDateMonthHourMinute());
+        sharedPrefEditor.putString(SHARED_PREF_LAST_UPDATE, DateUtils.getTodaysDateFormat02());
         sharedPrefEditor.apply();
 
         Log.d(TAG, "sharedPreferences Data Saved!");

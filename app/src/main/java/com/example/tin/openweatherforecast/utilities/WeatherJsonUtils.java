@@ -57,7 +57,7 @@ public class WeatherJsonUtils {
             }
 
                     /* Getting today's date in Human Readable Format to help build weather data array */
-            String todaysDate = DateUtils.getTodaysDayDateMonthHourMinute();
+            String todaysDate = DateUtils.getTodaysDateFormat01();
             Log.d(TAG, "Today's Date: " + todaysDate);
 
 
