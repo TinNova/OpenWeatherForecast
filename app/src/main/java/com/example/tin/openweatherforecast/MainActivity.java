@@ -56,14 +56,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    /* Context required to launch IntentService from a non-Activity class */
-    Context context;
-
-    /* Constant for logging and referring to a unique loader */
+    /* ID that is responsible for identifying the loader that loads the Weather data */
     private static final int WEATHER_LOADER_ID = 99;
+
     /*
-     * 0 = the SQL Loader has never run before, 1 = it has run before, therefore it needs to be reset
-     * before running it again
+     * Int representing whether the loader that loads the Weather data has run previously or not
+     * 0 = loader has never run before,
+     * 1 = loader has run before, therefore it needs to be reset before running it again
      */
     private int loaderCreated = 0;
 
@@ -79,8 +78,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     /* if codes returns this value as GPS lat/lon there was an error */
     private Double UPDATE_LOCATION_ERROR = 200.000;
-
-
 
 
     /*
@@ -139,8 +136,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         weatherSharedPref = getSharedPreferences(getPackageName() + "_preferences", MODE_PRIVATE);
 
         locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
-
-        context = MainActivity.this;
 
         /* Buttons */
         btnRefreshData = findViewById(R.id.bt_refresh);
@@ -675,7 +670,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             tvLocation.setText((LATITUDE + " " + sharedPreflat + ", " + LONGITUDE + " " + sharedPrefLon));
             tvLastDataUpdated.setText(sharedPrefLastUpdate);
 
-
         } else {
 
             /* Rounding the lat/lon Doubles to two decimal places */
@@ -685,7 +679,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             tvLocation.setText((String.valueOf(LATITUDE + " " + roundedLat + ", " + LONGITUDE + " " + roundedLon)));
 
             tvLastDataUpdated.setText(UPDATED + " " + DateUtils.getTodaysDateFormat02());
-
 
         }
 
@@ -757,8 +750,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         tvNoData.setVisibility(View.VISIBLE);
 
     }
-
-
 
 
 }

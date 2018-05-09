@@ -2,6 +2,7 @@ package com.example.tin.openweatherforecast.utilities;
 
 import android.content.ContentValues;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.example.tin.openweatherforecast.models.Weather;
 import com.example.tin.openweatherforecast.data.WeatherContract;
@@ -15,6 +16,8 @@ import static com.example.tin.openweatherforecast.MainActivity.SQL_WEATHER_DATA;
  */
 
 public class IntentServiceUtils {
+
+    private static final String TAG = IntentServiceUtils.class.getSimpleName();
 
     /* Method which launches the WeatherIntentService */
     public static Bundle saveWeatherDataToSql(ArrayList<Weather> weather) {
@@ -63,6 +66,8 @@ public class IntentServiceUtils {
             weatherContentValues[i] = weatherValues;
 
         }
+
+        Log.d(TAG, "weatherContentValues" + weatherContentValues);
 
         return weatherContentValues;
     }
