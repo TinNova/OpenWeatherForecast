@@ -12,16 +12,18 @@ import java.net.URL;
 
 public class NetworkUtils {
 
-    // URL STRUCTURE
-    // http://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API_KEY}
-
-    // EXAMPLE URL
-    // http://api.openweathermap.org/data/2.5/forecast?lat=35&lon=139&appid=1010101010
-
-    // URL STRUCTURE WITH ADDITIONAL PARAMETERS
-    // http://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}?units={UNIT_TYPE}&appid={API_KEY}
-
     private static final String TAG = NetworkUtils.class.getSimpleName();
+
+    /*
+     * URL STRUCTURE
+     * http://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API_KEY}
+     *
+     * EXAMPLE URL
+     * http://api.openweathermap.org/data/2.5/forecast?lat=35&lon=139&appid=1010101010
+     *
+     * URL STRUCTURE WITH ADDITIONAL PARAMETERS
+     * http://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}?units={UNIT_TYPE}&appid={API_KEY}
+     */
 
     /* Base url for the URL */
     private static final String BASE_WEATHER_URL = "http://api.openweathermap.org/data/2.5/forecast";
@@ -45,24 +47,21 @@ public class NetworkUtils {
     public static final String BASE_IMAGE_URL = "http://openweathermap.org/img/w/";
     public static final String END_IMAGE_URL = ".png";
 
-    public static String getUrl(Context context, Double currentLongitude, Double currentLatitude) {
-
-        //TODO: Add code that gets the users current Lat and Long
-//        double currentLatitude = 51;
-//        double currentLongitude = -0;
+    public static String getUrl(Context context, double currentLatitude, double currentLongitude) {
 
         return buildUrl(currentLatitude, currentLongitude);
+
     }
 
 
     /**
      * Builds the URL with our specified parameters
      *
-     * @param latitude Double representing the users current latitude
-     * @param longitude Double representing the users current longitude
+     * @param latitude  double representing the users current latitude
+     * @param longitude double representing the users current longitude
      * @return The URL that will be used to query the OpenWeatherMap server
      */
-    private static String buildUrl(Double latitude, Double longitude) {
+    private static String buildUrl(double latitude, double longitude) {
         Uri openWeatherQueryUri = Uri.parse(BASE_WEATHER_URL).buildUpon()
                 .appendQueryParameter(LAT_PARAM, String.valueOf(latitude))
                 .appendQueryParameter(LON_PARAM, String.valueOf(longitude))

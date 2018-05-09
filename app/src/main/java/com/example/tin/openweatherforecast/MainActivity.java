@@ -69,61 +69,61 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     /* Strings for the SQL Intent Service */
     public static final String SQL_WEATHER_DATA = "sql_weather_data";
 
-    // Used to check if the device has internet connection
+    /* Used to check if the device is connected to the internet before creating a connection */
     private ConnectivityManager mConnectionManager;
     private NetworkInfo mNetworkInfo;
 
+    /* Request Location Updates values */
     private int LOCATION_UPDATE_TIME = 100000;
     private int LOCATION_UPDATE_DISTANCE = 100000;
 
-    /* if codes returns this value as GPS lat/lon there was an error */
-    private Double UPDATE_LOCATION_ERROR = 200.000;
+    /* If codes returns this value as GPS lat/lon there was an error getting the devices location */
+    private double UPDATE_LOCATION_ERROR = 200.000;
 
+    /* Used to get the devices location */
+    private LocationManager locationManager;
+    private LocationListener locationListener;
+    private Location location;
 
     /*
-     * Needed to make the wind speed more readable for users in UI
+     * These strings are used to make the UI more attractive and readable for users.
      */
-    String WIND_INTRO;
-    String WIND_UNIT;
-    String DEGREE_SYMBOL;
-    String UPDATED;
-    String LATITUDE;
-    String LONGITUDE;
+    private String WIND_INTRO;
+    private String WIND_UNIT;
+    private String DEGREE_SYMBOL;
+    private String UPDATED;
+    private String LATITUDE;
+    private String LONGITUDE;
 
     /*
-     * Needed for the RecyclerView
+     * Needed to populate the Adapter and the RecyclerView
      */
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private ArrayList<Weather> mWeather;
 
     /*
-     * TextViews used to populate the current times weather
+     * Views within the code
      */
-    TextView tvTodayDate;
-    TextView tvTodayTemp;
-    TextView tvTodayDescription;
-    TextView tvTodayWindSpeed;
-    TextView tvTodayWindDirection;
-    TextView tvLastDataUpdated;
-    TextView tvLocation;
-    ImageView ivTodayIcon;
-    Button btnRefreshData;
-
-    ConstraintLayout mWeatherUi;
-    ProgressBar mLoadingIndicator;
-    TextView tvNoData;
-
-    ImageView ivUpdate;
-
-    private LocationManager locationManager;
-    private LocationListener locationListener;
-    Location location;
+    private TextView tvTodayDate;
+    private TextView tvTodayTemp;
+    private TextView tvTodayDescription;
+    private TextView tvTodayWindSpeed;
+    private TextView tvTodayWindDirection;
+    private TextView tvLastDataUpdated;
+    private TextView tvLocation;
+    private ImageView ivTodayIcon;
+    private Button btnRefreshData;
+    private ConstraintLayout mWeatherUi;
+    private ProgressBar mLoadingIndicator;
+    private TextView tvNoData;
+    private ImageView ivUpdate;
 
     /* lon and lat */
-    private Double lat;
-    private Double lon;
+    private double mLat;
+    private double mLon;
 
+    /* Reference to SharedPreferences */
     public static SharedPreferences weatherSharedPref;
 
 
@@ -170,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     /* Getting an updated Latitude and Longitude from the device */
                         requestLocationFromDevice();
                     /* Getting the data and passing in the updated lat and lon of the device */
-                        getData(lon, lat);
+                        getData(mLon, mLat);
 
                     }
 
@@ -200,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     /* Getting an updated Latitude and Longitude from the device */
                         requestLocationFromDevice();
                     /* Getting the data and passing in the updated lat and lon of the deivce */
-                        getData(lon, lat);
+                        getData(mLat, mLon);
 
                     }
 
@@ -263,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 showLoading();
                 /* Requesting the Latitude and Longitude of the device */
                 requestLocationFromDevice();
-                getData(lon, lat);
+                getData(mLat, mLon);
 
             } else {
 
@@ -298,12 +298,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     /* Requesting the latitude and longitude of the device */
     private void requestLocationFromDevice() {
 
-        Double[] deviceLocationArray = getLonLat();
+        double[] deviceLocationArray = getLonLat();
 
         /* If there wasn't an error in getting the lat/lon, continue else, launch the SQL data */
         if (!Objects.equals(deviceLocationArray[0], UPDATE_LOCATION_ERROR)) {
-            lat = deviceLocationArray[0];
-            lon = deviceLocationArray[1];
+            mLat = deviceLocationArray[0];
+            mLon = deviceLocationArray[1];
         } else {
 
             Toast.makeText(MainActivity.this, getString(R.string.no_gps), Toast.LENGTH_SHORT).show();
@@ -341,9 +341,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     @SuppressLint("MissingPermission")
-    private Double[] getLonLat() {
+    private double[] getLonLat() {
 
-        Double[] deviceLocation = new Double[0];
+        double[] deviceLocation = new double[0];
 
 //        locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
 
@@ -351,9 +351,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
 
 //            Toast.makeText(this, "GPS Switched off, showing weather for last known location", Toast.LENGTH_SHORT).show();
-//            Double testlat = 100.000;
-//            Double testlon = 100.00;
-//            deviceLocation = new Double[]{testlat, testlon};
+//            double testlat = 100.000;
+//            double testlon = 100.00;
+//            deviceLocation = new double[]{testlat, testlon};
 //            return (deviceLocation);
 
             /* If an instance of the loader already exists, restart it before loading the SQL data */
@@ -435,28 +435,28 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         return (deviceLocation);
     }
 
-    private Double[] updateLocation(Location location) {
+    private double[] updateLocation(Location location) {
 
         if (location != null) {
-            Double updateLocationLat = location.getLatitude();
-            Double updateLocationLon = location.getLongitude();
+            double updateLocationLat = location.getLatitude();
+            double updateLocationLon = location.getLongitude();
 
-            return new Double[]{updateLocationLat, updateLocationLon};
+            return new double[]{updateLocationLat, updateLocationLon};
         } else {
 
-            return new Double[]{UPDATE_LOCATION_ERROR, UPDATE_LOCATION_ERROR};
+            return new double[]{UPDATE_LOCATION_ERROR, UPDATE_LOCATION_ERROR};
         }
 
     }
 
-    private void getData(Double lon, Double lat) {
+    private void getData(double lat, double lon) {
 
         try {
             /*
              * The getUrl method will return the URL as a String that we need to get the forecast
              * JSON for the weather.
              */
-            String weatherRequestUrl = NetworkUtils.getUrl(this, lon, lat);
+            String weatherRequestUrl = NetworkUtils.getUrl(this, lat, lon);
 
             /*
              * Use the String URL "weatherRequestUrl" to request the JSON from the server
@@ -672,9 +672,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         } else {
 
-            /* Rounding the lat/lon Doubles to two decimal places */
-            Double roundedLat = LocationUtils.round(lat, 2);
-            Double roundedLon = LocationUtils.round(lon, 2);
+            /* Rounding the lat/lon doubles to two decimal places */
+            double roundedLat = LocationUtils.round(mLat, 2);
+            double roundedLon = LocationUtils.round(mLon, 2);
 
             tvLocation.setText((String.valueOf(LATITUDE + " " + roundedLat + ", " + LONGITUDE + " " + roundedLon)));
 
