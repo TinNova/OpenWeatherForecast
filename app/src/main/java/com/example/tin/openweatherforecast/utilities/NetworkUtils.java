@@ -47,7 +47,7 @@ public class NetworkUtils {
     public static final String BASE_IMAGE_URL = "http://openweathermap.org/img/w/";
     public static final String END_IMAGE_URL = ".png";
 
-    public static String getUrl(Context context, double currentLatitude, double currentLongitude) {
+    public static String getUrl(double currentLatitude, double currentLongitude) {
 
         return buildUrl(currentLatitude, currentLongitude);
 

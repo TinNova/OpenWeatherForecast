@@ -133,86 +133,18 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        /* Getting an instance of the weatherSharedPref */
         weatherSharedPref = getSharedPreferences(getPackageName() + "_preferences", MODE_PRIVATE);
 
+        /* Getting an instance of the locationManager */
         locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
 
-        /* Buttons */
+        /* Used to check if the device is connected to the internet */
+        mConnectionManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        /* Initialising all of the views */
         btnRefreshData = findViewById(R.id.bt_refresh);
-        ivUpdate = (ImageView) findViewById(R.id.iV_updateData);
-
-
-        btnRefreshData.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                /* If the connManager and networkInfo is NOT null, start the login() method */
-                if (mConnectionManager != null)
-                    mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
-                if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
-
-                    /* if GPS is not enabled, tell user, and display SQL data */
-                    if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-
-                        Toast.makeText(MainActivity.this, getString(R.string.no_gps), Toast.LENGTH_SHORT).show();
-
-                        /* If an instance of the loader already exists, restart it before loading the SQL data */
-                        if (loaderCreated == 1) {
-
-                            getSupportLoaderManager().restartLoader(WEATHER_LOADER_ID, null, MainActivity.this);
-                        }
-
-                        /* Start loading the SQL data */
-                        getSupportLoaderManager().initLoader(WEATHER_LOADER_ID, null, MainActivity.this);
-
-                    } else {
-
-                    /* Getting an updated Latitude and Longitude from the device */
-                        requestLocationFromDevice();
-                    /* Getting the data and passing in the updated lat and lon of the device */
-                        getData(mLon, mLat);
-
-                    }
-
-                } else {
-
-                    Toast.makeText(MainActivity.this, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
-
-                }
-            }
-        });
-
-        ivUpdate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                /* If the connManager and networkInfo is NOT null, start the login() method */
-                if (mConnectionManager != null)
-                    mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
-                if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
-
-                    /* if GPS is not enabled, tell user */
-                    if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-
-                        Toast.makeText(MainActivity.this, getString(R.string.no_gps), Toast.LENGTH_SHORT).show();
-
-                    } else {
-                    /* Getting an updated Latitude and Longitude from the device */
-                        requestLocationFromDevice();
-                    /* Getting the data and passing in the updated lat and lon of the deivce */
-                        getData(mLat, mLon);
-
-                    }
-
-                } else {
-
-                    Toast.makeText(MainActivity.this, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
-
-                }
-
-            }
-        });
-
+        ivUpdate = findViewById(R.id.iV_updateData);
         mWeatherUi = findViewById(R.id.l_weatherUi);
         mLoadingIndicator = findViewById(R.id.pB_loading_indicator);
         tvNoData = findViewById(R.id.tV_noData);
@@ -225,12 +157,21 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         ivTodayIcon = findViewById(R.id.iV_todayIcon);
         tvLastDataUpdated = findViewById(R.id.tV_lastUpdate);
 
-        /* Creating The RecyclerView */
-        // This will be used to attach the RecyclerView to the MovieAdapter
+        /* The celsius degree symbol */
+        DEGREE_SYMBOL = getString(R.string.degrees_symbol);
+
+        /*
+         * Creating The RecyclerView,
+         * This will be used to attach the RecyclerView to the MovieAdapter
+         */
         mRecyclerView = findViewById(R.id.rV_weatherList);
-        // This will improve performance by stating that changes in the content will not change
-        // the child layout size in the RecyclerView
+
+        /*
+         * This will improve performance by stating that changes in the content will not change
+         * the child layout size in the RecyclerView
+         */
         mRecyclerView.setHasFixedSize(true);
+
         /*
          * A LayoutManager is responsible for measuring and positioning item views within a
          * RecyclerView as well as determining the policy for when to recycle item views that
@@ -238,62 +179,47 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
          */
         LinearLayoutManager mLinearLayoutManager =
                 new LinearLayoutManager(this);
-        // Set the mRecyclerView to the layoutManager so it can handle the positioning of the items
+
+        /* Set the mRecyclerView to the layoutManager */
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
-        // Creating the mTheCompanies ArrayList<> to avoid a null exception
+
+        /* Initialising the mWeather ArrayList<> to avoid a null exception */
         mWeather = new ArrayList<>();
 
-        /* The celsius degree symbol */
-        DEGREE_SYMBOL = getString(R.string.degrees_symbol);
+        /*
+         * This code checks if there is an internet connection and whether the devices location
+         * is attainable.
+         *
+         * If both are true, then the code will create the OpenWeatherMap url and download the
+         * response.
+         *
+         * If either are false, then the code will display the data available in the SQLite
+         * database.
+         *
+         * If the data within the database is was last updated over 24 hours ago or if there isn't
+         * any data saved, it will display a no data screen.
+         */
+        downloadResponseOrDisplaySqlData();
 
+        /* Button used to refresh the weather data */
+        btnRefreshData.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-        // Checking If The Device Is Connected To The Internet
-        mConnectionManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-
-
-        // If the connManager and networkInfo is NOT null, start the login() method
-        if (mConnectionManager != null)
-            mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
-        if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
-
-            /* if GPS is enabled */
-            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-
-                /* Shows loading screen and hides the UI that contains weather data */
-                showLoading();
-                /* Requesting the Latitude and Longitude of the device */
-                requestLocationFromDevice();
-                getData(mLat, mLon);
-
-            } else {
-
-                Toast.makeText(MainActivity.this, getString(R.string.no_gps), Toast.LENGTH_SHORT).show();
-
-                /* If an instance of the loader already exists, restart it before loading the SQL data */
-                if (loaderCreated == 1) {
-                    getSupportLoaderManager().restartLoader(WEATHER_LOADER_ID, null, this);
-                }
-                /* Start loading the SQL data */
-                getSupportLoaderManager().initLoader(WEATHER_LOADER_ID, null, this);
-
+                downloadResponseOrDisplaySqlData();
             }
+        });
 
+        /* ImageView with onClickListener used to update the weather data */
+        ivUpdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-        } else {
-
-            Toast.makeText(this, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
-
-            /* If an instance of the loader already exists, restart it before loading the SQL data */
-            if (loaderCreated == 1) {
-
-                getSupportLoaderManager().restartLoader(WEATHER_LOADER_ID, null, this);
+                downloadResponseOrDisplaySqlData();
             }
-
-            /* Start loading the SQL data */
-            getSupportLoaderManager().initLoader(WEATHER_LOADER_ID, null, this);
-
-        }
+        });
     }
+
 
     /* Requesting the latitude and longitude of the device */
     private void requestLocationFromDevice() {
@@ -304,6 +230,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         if (!Objects.equals(deviceLocationArray[0], UPDATE_LOCATION_ERROR)) {
             mLat = deviceLocationArray[0];
             mLon = deviceLocationArray[1];
+
         } else {
 
             Toast.makeText(MainActivity.this, getString(R.string.no_gps), Toast.LENGTH_SHORT).show();
@@ -319,7 +246,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         }
     }
-
 
     /* Code that runs when Permission to use Location has been granted */
     @Override
@@ -345,16 +271,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         double[] deviceLocation = new double[0];
 
-//        locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
-
         /* if GPS is not enabled, tell user, and display SQL data */
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-
-//            Toast.makeText(this, "GPS Switched off, showing weather for last known location", Toast.LENGTH_SHORT).show();
-//            double testlat = 100.000;
-//            double testlon = 100.00;
-//            deviceLocation = new double[]{testlat, testlon};
-//            return (deviceLocation);
 
             /* If an instance of the loader already exists, restart it before loading the SQL data */
             if (loaderCreated == 1) {
@@ -394,8 +312,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             }
         };
 
-
-
         /* If build version is less than Marshmallow skip permission check */
         if (Build.VERSION.SDK_INT < 23) {
 
@@ -407,20 +323,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         } else {
 
 
-        /* if app denied us permission from getting the location */
+            /* if app denied us permission from getting the location */
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
 
-            /* Ask user for permission to access location */
-
-                Log.d(TAG, "CODE RAN Refused Access to Location");
-
+                /* Ask user for permission to access location */
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
 
             /* We already have permission, so get the devices location */
@@ -449,6 +355,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     }
 
+
     private void getData(double lat, double lon) {
 
         try {
@@ -456,7 +363,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
              * The getUrl method will return the URL as a String that we need to get the forecast
              * JSON for the weather.
              */
-            String weatherRequestUrl = NetworkUtils.getUrl(this, lat, lon);
+            String weatherRequestUrl = NetworkUtils.getUrl(lat, lon);
 
             /*
              * Use the String URL "weatherRequestUrl" to request the JSON from the server
@@ -748,6 +655,53 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         btnRefreshData.setVisibility(View.VISIBLE);
         /* Show the No Data Text */
         tvNoData.setVisibility(View.VISIBLE);
+
+    }
+
+    private void downloadResponseOrDisplaySqlData() {
+
+        // If the connManager and networkInfo is NOT null, start the login() method
+        if (mConnectionManager != null)
+            mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
+        if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
+
+                    /* if GPS is enabled */
+            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+
+                        /* Shows loading screen and hides the UI that contains weather data */
+                showLoading();
+                        /* Requesting the Latitude and Longitude of the device */
+                requestLocationFromDevice();
+                getData(mLat, mLon);
+
+            } else {
+
+                Toast.makeText(MainActivity.this, getString(R.string.no_gps), Toast.LENGTH_SHORT).show();
+
+                        /* If an instance of the loader already exists, restart it before loading the SQL data */
+                if (loaderCreated == 1) {
+                    getSupportLoaderManager().restartLoader(WEATHER_LOADER_ID, null, MainActivity.this);
+                }
+                        /* Start loading the SQL data */
+                getSupportLoaderManager().initLoader(WEATHER_LOADER_ID, null, MainActivity.this);
+
+            }
+
+
+        } else {
+
+            Toast.makeText(MainActivity.this, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
+
+                    /* If an instance of the loader already exists, restart it before loading the SQL data */
+            if (loaderCreated == 1) {
+
+                getSupportLoaderManager().restartLoader(WEATHER_LOADER_ID, null, MainActivity.this);
+            }
+
+                    /* Start loading the SQL data */
+            getSupportLoaderManager().initLoader(WEATHER_LOADER_ID, null, MainActivity.this);
+
+        }
 
     }
 
