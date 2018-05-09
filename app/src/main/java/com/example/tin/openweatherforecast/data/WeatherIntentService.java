@@ -1,4 +1,4 @@
-package com.example.tin.openweatherforecast.sql;
+package com.example.tin.openweatherforecast.data;
 
 import android.app.IntentService;
 import android.content.ContentResolver;
@@ -6,7 +6,6 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.example.tin.openweatherforecast.MainActivity;
 import com.example.tin.openweatherforecast.models.Weather;

@@ -1,4 +1,4 @@
-package com.example.tin.openweatherforecast.sql;
+package com.example.tin.openweatherforecast.data;
 
 import android.net.Uri;
 import android.provider.BaseColumns;

@@ -1,13 +1,10 @@
 package com.example.tin.openweatherforecast.utilities;
 
 import android.content.ContentValues;
-import android.content.Intent;
 import android.os.Bundle;
 
-import com.example.tin.openweatherforecast.MainActivity;
 import com.example.tin.openweatherforecast.models.Weather;
-import com.example.tin.openweatherforecast.sql.WeatherContract;
-import com.example.tin.openweatherforecast.sql.WeatherIntentService;
+import com.example.tin.openweatherforecast.data.WeatherContract;
 
 import java.util.ArrayList;
 

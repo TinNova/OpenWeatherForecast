@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Location;
@@ -36,8 +37,8 @@ import android.widget.Toast;
 
 import com.example.tin.openweatherforecast.adapters.WeatherAdapter;
 import com.example.tin.openweatherforecast.models.Weather;
-import com.example.tin.openweatherforecast.sql.WeatherContract;
-import com.example.tin.openweatherforecast.sql.WeatherIntentService;
+import com.example.tin.openweatherforecast.data.WeatherContract;
+import com.example.tin.openweatherforecast.data.WeatherIntentService;
 import com.example.tin.openweatherforecast.utilities.DateUtils;
 import com.example.tin.openweatherforecast.utilities.IntentServiceUtils;
 import com.example.tin.openweatherforecast.utilities.LocationUtils;
@@ -47,6 +48,7 @@ import com.example.tin.openweatherforecast.utilities.NetworkUtils;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -73,6 +75,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private int LOCATION_UPDATE_TIME = 100000;
     private int LOCATION_UPDATE_DISTANCE = 100000;
+
+    /* if codes returns this value as GPS lat/lon there was an error */
+    private Double UPDATE_LOCATION_ERROR = 200.000;
+
+    /* sharedPreferences keys */
+    private String SHARED_PREF_LAT = "shared_pref_lat";
+    private String SHARED_PREF_LON = "shared_pref_lon";
+    private String SHARED_PREF_LAST_UPDATE = "shared_pref_last_update";
+
 
     /*
      * Needed to make the wind speed more readable for users in UI
@@ -131,8 +142,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         btnRefreshData = findViewById(R.id.bt_refresh);
         ivUpdate = (ImageView) findViewById(R.id.iV_updateData);
 
-        /* Requesting the Latitude and Longitude of the device */
-        requestLocationFromDevice();
 
         btnRefreshData.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -147,6 +156,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
 
                         Toast.makeText(MainActivity.this, getString(R.string.no_gps), Toast.LENGTH_SHORT).show();
+
+                        /* If an instance of the loader already exists, restart it before loading the SQL data */
+                        if (loaderCreated == 1) {
+
+                            getSupportLoaderManager().restartLoader(WEATHER_LOADER_ID, null, MainActivity.this);
+                        }
+
+                        /* Start loading the SQL data */
+                        getSupportLoaderManager().initLoader(WEATHER_LOADER_ID, null, MainActivity.this);
 
                     } else {
 
@@ -165,7 +183,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             }
         });
 
-
         ivUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -175,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
                 if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
 
-                    /* if GPS is not enabled, tell user, and display SQL data */
+                    /* if GPS is not enabled, tell user */
                     if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
 
                         Toast.makeText(MainActivity.this, getString(R.string.no_gps), Toast.LENGTH_SHORT).show();
@@ -230,8 +247,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         /* The celsius degree symbol */
         DEGREE_SYMBOL = getString(R.string.degrees_symbol);
 
-        /* Shows loading screen and hides the UI that contains weather data */
-        showLoading();
 
         // Checking If The Device Is Connected To The Internet
         mConnectionManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -242,7 +257,28 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
         if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
 
-            getData(lon, lat);
+            /* if GPS is enabled */
+            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+
+                /* Shows loading screen and hides the UI that contains weather data */
+                showLoading();
+                /* Requesting the Latitude and Longitude of the device */
+                requestLocationFromDevice();
+                getData(lon, lat);
+
+            } else {
+
+                Toast.makeText(MainActivity.this, getString(R.string.no_gps), Toast.LENGTH_SHORT).show();
+
+                /* If an instance of the loader already exists, restart it before loading the SQL data */
+                if (loaderCreated == 1) {
+                    getSupportLoaderManager().restartLoader(WEATHER_LOADER_ID, null, this);
+                }
+                /* Start loading the SQL data */
+                getSupportLoaderManager().initLoader(WEATHER_LOADER_ID, null, this);
+
+            }
+
 
         } else {
 
@@ -262,9 +298,27 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     /* Requesting the latitude and longitude of the device */
     private void requestLocationFromDevice() {
+
         Double[] deviceLocationArray = getLonLat();
-        lat = deviceLocationArray[0];
-        lon = deviceLocationArray[1];
+
+        /* If there wasn't an error in getting the lat/lon, continue else, launch the SQL data */
+        if (!Objects.equals(deviceLocationArray[0], UPDATE_LOCATION_ERROR)) {
+            lat = deviceLocationArray[0];
+            lon = deviceLocationArray[1];
+        } else {
+
+            Toast.makeText(MainActivity.this, getString(R.string.no_gps), Toast.LENGTH_SHORT).show();
+
+            /* If an instance of the loader already exists, restart it before loading the SQL data */
+            if (loaderCreated == 1) {
+
+                getSupportLoaderManager().restartLoader(WEATHER_LOADER_ID, null, this);
+            }
+
+            /* Start loading the SQL data */
+            getSupportLoaderManager().initLoader(WEATHER_LOADER_ID, null, this);
+
+        }
     }
 
 
@@ -384,10 +438,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private Double[] updateLocation(Location location) {
 
-        Double updateLocationLat = location.getLatitude();
-        Double updateLocationLon = location.getLongitude();
+        if (location != null) {
+            Double updateLocationLat = location.getLatitude();
+            Double updateLocationLon = location.getLongitude();
 
-        return new Double[]{updateLocationLat, updateLocationLon};
+            return new Double[]{updateLocationLat, updateLocationLon};
+        } else {
+
+            return new Double[]{UPDATE_LOCATION_ERROR, UPDATE_LOCATION_ERROR};
+        }
 
     }
 
@@ -410,10 +469,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     /* Logging the weather ArrayList to see if it's functioning */
                     Log.i(TAG, "ArrayList Weather: " + weather);
 
-                    populateTodaysDate(weather);
+                    /* dataType, SQL = 1, API = 2 */
+                    populateTodaysDate(weather, 2);
 
                     //TODO: Launch this from NetworkConnection, and put as much of it into IntentServiceUtils
-                    // TIP: You'll need to pass this activities context within getResponseFromHttpUrl();
                     /* Save Weather ContentValues to Bundle */
                     Bundle weatherDataBundle = IntentServiceUtils.saveWeatherDataToSql(weather);
                     /* Send Bundle to the SqlIntentService to be saved in SQLite */
@@ -424,6 +483,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
                 }
             });
+
+            /* Save the latitude, longitude and time of update to SharedPreferences */
+            saveLocationAndUpdateTime(lat, lon);
 
         } catch (Exception e) {
             /* Server probably invalid */
@@ -490,7 +552,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
         /* Here We Are Accessing The SQLite Query We Received In The Method getSqlCompanies() Which Is Set To Read All Rows
-         * We're Going Through Each Row With A For Loop And Putting Them Into Our FavouriteMovie Model
+         * We're Going Through Each Row With A For Loop And Putting Them Into Our Weather Model
          *
          * @param cursor
          */
@@ -548,8 +610,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     showWeatherDataView();
 
                 } else {
-
-                    populateTodaysDate(mWeather);
+                    /* dataType, SQL = 1, API = 2 */
+                    populateTodaysDate(mWeather, 1);
 
                 }
 
@@ -583,7 +645,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
 
     /* Helper Class that populates today's feature date and passes weather ArrayList to WeatherAdapter */
-    private void populateTodaysDate(ArrayList<Weather> weather) {
+    private void populateTodaysDate(ArrayList<Weather> weather, int dataType) {
 
         WIND_INTRO = getString(R.string.wind_intro);
         WIND_UNIT = getString(R.string.wind_speed_unit);
@@ -592,18 +654,40 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         LATITUDE = getString(R.string.latitude);
         LONGITUDE = getString(R.string.longitude);
 
-        Double roundedLat = LocationUtils.round(lat, 2);
-        Double roundedLon = LocationUtils.round(lon, 2);
+        Log.d(TAG, "dataType: " + dataType);
+        /*
+         *if data came from SQL, display the lat/lon and update time that was saved in SharePref
+         * at the same time
+         */
+        if (dataType == 1) {
+            String[] sharedPrefLatLonArray = displayLocationAndUpdateTime();
+            String sharedPreflat = sharedPrefLatLonArray[0];
+            String sharedPrefLon = sharedPrefLatLonArray[1];
+            String sharedPrefLastUpdate = sharedPrefLatLonArray[2];
 
-                    /* Populating the current times weather */
+            tvLocation.setText((LATITUDE + " " + sharedPreflat + ", " + LONGITUDE + " " + sharedPrefLon));
+            tvLastDataUpdated.setText(sharedPrefLastUpdate);
+
+
+        } else {
+
+            /* Rounding the lat/lon Doubles to two decimal places */
+            Double roundedLat = LocationUtils.round(lat, 2);
+            Double roundedLon = LocationUtils.round(lon, 2);
+
+            tvLocation.setText((String.valueOf(LATITUDE + " " + roundedLat + ", " + LONGITUDE + " " + roundedLon)));
+
+            tvLastDataUpdated.setText(UPDATED + " " + DateUtils.getTodaysDateMonthHourMinute());
+
+
+        }
+
+        /* Populating the current times weather */
         tvTodayDate.setText(weather.get(0).getCalculateDateTime());
         tvTodayTemp.setText((String.valueOf(weather.get(0).getTempCurrent() + DEGREE_SYMBOL)));
         tvTodayDescription.setText(weather.get(0).getWeatherDescription());
         tvTodayWindSpeed.setText((String.valueOf(WIND_INTRO + weather.get(0).getWindSpeed() + WIND_UNIT)));
         tvTodayWindDirection.setText((String.valueOf(weather.get(0).getWindDegree())));
-        tvLastDataUpdated.setText(UPDATED + " " + DateUtils.getTodaysDateMonthHourMinute());
-        tvLocation.setText((String.valueOf(LATITUDE + " " + roundedLat + ", " + LONGITUDE + " " + roundedLon)));
-
 
 
         Picasso.with(MainActivity.this).load(weather.get(0).getWeatherIcon())
@@ -612,21 +696,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         mAdapter = new WeatherAdapter(weather, getApplicationContext(), DEGREE_SYMBOL);
         mRecyclerView.setAdapter(mAdapter);
 
-//        if (mAdapter == null) {
-//            /*
-//             * Connecting the weather ArrayList to the Adapter, and the Adapter to the
-//             * RecyclerView
-//             */
-//            Log.d(TAG, "CODE RAN Add Adapter");
-//            //mAdapter = new WeatherAdapter(weather, getApplicationContext(), DEGREE_SYMBOL);
-//            mRecyclerView.setAdapter(mAdapter);
-//            mAdapter.notifyDataSetChanged();
-//
-//        } else {
-//            Log.d(TAG, "CODE RAN notifyDataSetChanged");
         mAdapter.notifyDataSetChanged();
-
-        //      }
 
         showWeatherDataView();
 
@@ -678,6 +748,38 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         btnRefreshData.setVisibility(View.VISIBLE);
         /* Show the No Data Text */
         tvNoData.setVisibility(View.VISIBLE);
+
+    }
+
+
+    private void saveLocationAndUpdateTime(Double lat, Double lon) {
+
+        SharedPreferences sharedPref =
+                getSharedPreferences("locationAndUpdateTime", Context.MODE_PRIVATE);
+
+        /* Rounding the lat/lon Doubles to two decimal places */
+        Double roundedLat = LocationUtils.round(lat, 2);
+        Double roundedLon = LocationUtils.round(lon, 2);
+
+        SharedPreferences.Editor sharedPrefEditor = sharedPref.edit();
+        sharedPrefEditor.putString(SHARED_PREF_LAT, String.valueOf(roundedLat));
+        sharedPrefEditor.putString(SHARED_PREF_LON, String.valueOf(roundedLon));
+        sharedPrefEditor.putString(SHARED_PREF_LAST_UPDATE, DateUtils.getTodaysDateMonthHourMinute());
+        sharedPrefEditor.apply();
+
+        Log.d(TAG, "sharedPreferences Data Saved!");
+    }
+
+    private String[] displayLocationAndUpdateTime() {
+
+        SharedPreferences sharedPref =
+                getSharedPreferences("locationAndUpdateTime", Context.MODE_PRIVATE);
+
+        String lat = sharedPref.getString(SHARED_PREF_LAT, "");
+        String lon = sharedPref.getString(SHARED_PREF_LON, "");
+        String lastUpdate = sharedPref.getString(SHARED_PREF_LAST_UPDATE, "");
+
+        return new String[]{lat, lon, lastUpdate};
 
     }
 

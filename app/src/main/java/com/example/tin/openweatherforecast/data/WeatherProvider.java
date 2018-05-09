@@ -1,4 +1,4 @@
-package com.example.tin.openweatherforecast.sql;
+package com.example.tin.openweatherforecast.data;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -10,7 +10,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import static com.example.tin.openweatherforecast.sql.WeatherContract.WeatherEntry.TABLE_NAME;
+import static com.example.tin.openweatherforecast.data.WeatherContract.WeatherEntry.TABLE_NAME;
 
 public class WeatherProvider extends ContentProvider {
 
