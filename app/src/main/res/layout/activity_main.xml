@@ -135,12 +135,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
+                android:layout_marginTop="2dp"
                 android:textAlignment="textEnd"
                 android:textSize="12sp"
-                app:layout_constraintBottom_toBottomOf="@+id/iV_updateData"
+                app:layout_constraintBottom_toBottomOf="@+id/tV_lastUpdate"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/iV_updateData"
-                app:layout_constraintVertical_bias="1.0"
+                app:layout_constraintTop_toTopOf="@+id/tV_lastUpdate"
                 tools:text="Lat 30.00 Lon -1.02" />
 
         </android.support.constraint.ConstraintLayout>

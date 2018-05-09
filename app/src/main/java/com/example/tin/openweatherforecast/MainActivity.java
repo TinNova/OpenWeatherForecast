@@ -40,6 +40,7 @@ import com.example.tin.openweatherforecast.sql.WeatherContract;
 import com.example.tin.openweatherforecast.sql.WeatherIntentService;
 import com.example.tin.openweatherforecast.utilities.DateUtils;
 import com.example.tin.openweatherforecast.utilities.IntentServiceUtils;
+import com.example.tin.openweatherforecast.utilities.LocationUtils;
 import com.example.tin.openweatherforecast.utilities.NetworkListener;
 import com.example.tin.openweatherforecast.utilities.NetworkConnection;
 import com.example.tin.openweatherforecast.utilities.NetworkUtils;
@@ -591,6 +592,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         LATITUDE = getString(R.string.latitude);
         LONGITUDE = getString(R.string.longitude);
 
+        Double roundedLat = LocationUtils.round(lat, 2);
+        Double roundedLon = LocationUtils.round(lon, 2);
+
                     /* Populating the current times weather */
         tvTodayDate.setText(weather.get(0).getCalculateDateTime());
         tvTodayTemp.setText((String.valueOf(weather.get(0).getTempCurrent() + DEGREE_SYMBOL)));
@@ -598,7 +602,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         tvTodayWindSpeed.setText((String.valueOf(WIND_INTRO + weather.get(0).getWindSpeed() + WIND_UNIT)));
         tvTodayWindDirection.setText((String.valueOf(weather.get(0).getWindDegree())));
         tvLastDataUpdated.setText(UPDATED + " " + DateUtils.getTodaysDateMonthHourMinute());
-        tvLocation.setText((String.valueOf(LATITUDE + " " + lat + ", " + LONGITUDE + " " + lon)));
+        tvLocation.setText((String.valueOf(LATITUDE + " " + roundedLat + ", " + LONGITUDE + " " + roundedLon)));
+
+
 
         Picasso.with(MainActivity.this).load(weather.get(0).getWeatherIcon())
                 .into(ivTodayIcon);
