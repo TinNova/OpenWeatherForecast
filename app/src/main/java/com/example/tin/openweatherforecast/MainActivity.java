@@ -36,6 +36,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.tin.openweatherforecast.adapters.WeatherAdapter;
+import com.example.tin.openweatherforecast.data.WeatherSharedPreferencesHelper;
 import com.example.tin.openweatherforecast.models.Weather;
 import com.example.tin.openweatherforecast.data.WeatherContract;
 import com.example.tin.openweatherforecast.data.WeatherIntentService;
@@ -79,10 +80,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     /* if codes returns this value as GPS lat/lon there was an error */
     private Double UPDATE_LOCATION_ERROR = 200.000;
 
-    /* sharedPreferences keys */
-    private String SHARED_PREF_LAT = "shared_pref_lat";
-    private String SHARED_PREF_LON = "shared_pref_lon";
-    private String SHARED_PREF_LAST_UPDATE = "shared_pref_last_update";
+
 
 
     /*
@@ -125,14 +123,20 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private LocationListener locationListener;
     Location location;
 
+    /* lon and lat */
     private Double lat;
     private Double lon;
+
+    public static SharedPreferences weatherSharedPref;
+
 
     @SuppressLint("MissingPermission")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        weatherSharedPref = getSharedPreferences(getPackageName() + "_preferences", MODE_PRIVATE);
 
         locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
 
@@ -484,8 +488,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 }
             });
 
-            /* Save the latitude, longitude and time of update to SharedPreferences */
-            saveLocationAndUpdateTime(lat, lon);
+            /*
+             * Save the latitude, longitude to SharedPreferences.
+             * The date at which the data was updated is also save within this class.
+             */
+            WeatherSharedPreferencesHelper.setLatLonAndDate(lat, lon);
 
         } catch (Exception e) {
             /* Server probably invalid */
@@ -660,7 +667,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
          * at the same time
          */
         if (dataType == 1) {
-            String[] sharedPrefLatLonArray = displayLocationAndUpdateTime();
+            String[] sharedPrefLatLonArray = WeatherSharedPreferencesHelper.getLatLonAndDate();
             String sharedPreflat = sharedPrefLatLonArray[0];
             String sharedPrefLon = sharedPrefLatLonArray[1];
             String sharedPrefLastUpdate = sharedPrefLatLonArray[2];
@@ -752,35 +759,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
 
-    private void saveLocationAndUpdateTime(Double lat, Double lon) {
 
-        SharedPreferences sharedPref =
-                getSharedPreferences("locationAndUpdateTime", Context.MODE_PRIVATE);
-
-        /* Rounding the lat/lon Doubles to two decimal places */
-        Double roundedLat = LocationUtils.round(lat, 2);
-        Double roundedLon = LocationUtils.round(lon, 2);
-
-        SharedPreferences.Editor sharedPrefEditor = sharedPref.edit();
-        sharedPrefEditor.putString(SHARED_PREF_LAT, String.valueOf(roundedLat));
-        sharedPrefEditor.putString(SHARED_PREF_LON, String.valueOf(roundedLon));
-        sharedPrefEditor.putString(SHARED_PREF_LAST_UPDATE, DateUtils.getTodaysDateFormat02());
-        sharedPrefEditor.apply();
-
-        Log.d(TAG, "sharedPreferences Data Saved!");
-    }
-
-    private String[] displayLocationAndUpdateTime() {
-
-        SharedPreferences sharedPref =
-                getSharedPreferences("locationAndUpdateTime", Context.MODE_PRIVATE);
-
-        String lat = sharedPref.getString(SHARED_PREF_LAT, "");
-        String lon = sharedPref.getString(SHARED_PREF_LON, "");
-        String lastUpdate = sharedPref.getString(SHARED_PREF_LAST_UPDATE, "");
-
-        return new String[]{lat, lon, lastUpdate};
-
-    }
 
 }
