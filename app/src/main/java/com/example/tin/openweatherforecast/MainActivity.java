@@ -657,48 +657,32 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 } else {
 
                     Toast.makeText(MainActivity.this, getString(R.string.no_gps), Toast.LENGTH_SHORT).show();
-
-                    /* If an instance of the loader already exists, restart it before loading the SQL data */
-                    if (loaderCreated == 1) {
-
-                        getSupportLoaderManager().restartLoader(WEATHER_LOADER_ID, null, this);
-                    }
-
-                    /* Start loading the SQL data */
-                    getSupportLoaderManager().initLoader(WEATHER_LOADER_ID, null, this);
-
+                    displaySqlData();
                 }
 
             } else {
 
                 Toast.makeText(MainActivity.this, getString(R.string.no_gps), Toast.LENGTH_SHORT).show();
-
-                        /* If an instance of the loader already exists, restart it before loading the SQL data */
-                if (loaderCreated == 1) {
-                    getSupportLoaderManager().restartLoader(WEATHER_LOADER_ID, null, MainActivity.this);
-                }
-                        /* Start loading the SQL data */
-                getSupportLoaderManager().initLoader(WEATHER_LOADER_ID, null, MainActivity.this);
-
+                displaySqlData();
             }
-
 
         } else {
 
             Toast.makeText(MainActivity.this, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
-
-                    /* If an instance of the loader already exists, restart it before loading the SQL data */
-            if (loaderCreated == 1) {
-
-                getSupportLoaderManager().restartLoader(WEATHER_LOADER_ID, null, MainActivity.this);
-            }
-
-                    /* Start loading the SQL data */
-            getSupportLoaderManager().initLoader(WEATHER_LOADER_ID, null, MainActivity.this);
-
+            displaySqlData();
         }
-
     }
 
+    private void displaySqlData() {
 
+        /* If an instance of the loader already exists, restart it before loading the SQL data */
+        if (loaderCreated == 1) {
+
+            getSupportLoaderManager().restartLoader(WEATHER_LOADER_ID, null, MainActivity.this);
+        }
+
+            /* Start loading the SQL data */
+        getSupportLoaderManager().initLoader(WEATHER_LOADER_ID, null, MainActivity.this);
+
+    }
 }
