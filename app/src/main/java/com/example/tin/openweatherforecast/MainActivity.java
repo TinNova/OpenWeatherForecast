@@ -80,6 +80,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     String WIND_UNIT;
     String DEGREE_SYMBOL;
     String UPDATED;
+    String LATITUDE;
+    String LONGITUDE;
 
     /*
      * Needed for the RecyclerView
@@ -97,6 +99,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     TextView tvTodayWindSpeed;
     TextView tvTodayWindDirection;
     TextView tvLastDataUpdated;
+    TextView tvLocation;
     ImageView ivTodayIcon;
     Button btnRefreshData;
 
@@ -119,6 +122,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
+
         context = MainActivity.this;
 
         /* Buttons */
@@ -137,10 +142,19 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
                 if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
 
+                    /* if GPS is not enabled, tell user, and display SQL data */
+                    if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+
+                        Toast.makeText(MainActivity.this, getString(R.string.no_gps), Toast.LENGTH_SHORT).show();
+
+                    } else {
+
                     /* Getting an updated Latitude and Longitude from the device */
-                    requestLocationFromDevice();
-                    /* Getting the data and passing in the updated lat and lon of the deivce */
-                    getData(lon, lat);
+                        requestLocationFromDevice();
+                    /* Getting the data and passing in the updated lat and lon of the device */
+                        getData(lon, lat);
+
+                    }
 
                 } else {
 
@@ -160,8 +174,18 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
                 if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
 
-                    requestLocationFromDevice();
-                    getData(lon, lat);
+                    /* if GPS is not enabled, tell user, and display SQL data */
+                    if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+
+                        Toast.makeText(MainActivity.this, getString(R.string.no_gps), Toast.LENGTH_SHORT).show();
+
+                    } else {
+                    /* Getting an updated Latitude and Longitude from the device */
+                        requestLocationFromDevice();
+                    /* Getting the data and passing in the updated lat and lon of the deivce */
+                        getData(lon, lat);
+
+                    }
 
                 } else {
 
@@ -180,6 +204,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         tvTodayDescription = findViewById(R.id.tV_todayDescription);
         tvTodayWindSpeed = findViewById(R.id.tV_todayWindSpeed);
         tvTodayWindDirection = findViewById(R.id.tV_todayWindDirection);
+        tvLocation = findViewById(R.id.tV_lastLocation);
         ivTodayIcon = findViewById(R.id.iV_todayIcon);
         tvLastDataUpdated = findViewById(R.id.tV_lastUpdate);
 
@@ -266,7 +291,27 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         Double[] deviceLocation = new Double[0];
 
-        locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
+//        locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
+
+        /* if GPS is not enabled, tell user, and display SQL data */
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+
+//            Toast.makeText(this, "GPS Switched off, showing weather for last known location", Toast.LENGTH_SHORT).show();
+//            Double testlat = 100.000;
+//            Double testlon = 100.00;
+//            deviceLocation = new Double[]{testlat, testlon};
+//            return (deviceLocation);
+
+            /* If an instance of the loader already exists, restart it before loading the SQL data */
+            if (loaderCreated == 1) {
+
+                getSupportLoaderManager().restartLoader(WEATHER_LOADER_ID, null, this);
+            }
+
+            /* Start loading the SQL data */
+            getSupportLoaderManager().initLoader(WEATHER_LOADER_ID, null, this);
+        }
+
         locationListener = new LocationListener() {
             /* Called whenever the location is updated */
             @Override
@@ -295,6 +340,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             }
         };
 
+
+
         /* If build version is less than Marshmallow skip permission check */
         if (Build.VERSION.SDK_INT < 23) {
 
@@ -302,7 +349,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
             deviceLocation = updateLocation(location);
-            //updateLocation(location);
 
         } else {
 
@@ -542,6 +588,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         WIND_UNIT = getString(R.string.wind_speed_unit);
         DEGREE_SYMBOL = getString(R.string.degrees_symbol);
         UPDATED = getString(R.string.last_update);
+        LATITUDE = getString(R.string.latitude);
+        LONGITUDE = getString(R.string.longitude);
 
                     /* Populating the current times weather */
         tvTodayDate.setText(weather.get(0).getCalculateDateTime());
@@ -550,16 +598,29 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         tvTodayWindSpeed.setText((String.valueOf(WIND_INTRO + weather.get(0).getWindSpeed() + WIND_UNIT)));
         tvTodayWindDirection.setText((String.valueOf(weather.get(0).getWindDegree())));
         tvLastDataUpdated.setText(UPDATED + " " + DateUtils.getTodaysDateMonthHourMinute());
+        tvLocation.setText((String.valueOf(LATITUDE + " " + lat + ", " + LONGITUDE + " " + lon)));
 
         Picasso.with(MainActivity.this).load(weather.get(0).getWeatherIcon())
                 .into(ivTodayIcon);
 
-        /*
-         * Connecting the weather ArrayList to the Adapter, and the Adapter to the
-         * RecyclerView
-         */
         mAdapter = new WeatherAdapter(weather, getApplicationContext(), DEGREE_SYMBOL);
         mRecyclerView.setAdapter(mAdapter);
+
+//        if (mAdapter == null) {
+//            /*
+//             * Connecting the weather ArrayList to the Adapter, and the Adapter to the
+//             * RecyclerView
+//             */
+//            Log.d(TAG, "CODE RAN Add Adapter");
+//            //mAdapter = new WeatherAdapter(weather, getApplicationContext(), DEGREE_SYMBOL);
+//            mRecyclerView.setAdapter(mAdapter);
+//            mAdapter.notifyDataSetChanged();
+//
+//        } else {
+//            Log.d(TAG, "CODE RAN notifyDataSetChanged");
+        mAdapter.notifyDataSetChanged();
+
+        //      }
 
         showWeatherDataView();
 

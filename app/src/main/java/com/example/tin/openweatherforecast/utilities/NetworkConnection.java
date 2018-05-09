@@ -83,6 +83,11 @@ public class NetworkConnection {
 
     public void getResponseFromHttpUrl(String url, final NetworkListener listener) throws MalformedURLException {
 
+        /* If the mWeather ArrayList contains old data, remove it */
+        if (mWeather != null) {
+            mWeather.clear();
+        }
+
         // Handler for the JSON response when server returns ok
         final com.android.volley.Response.Listener<String>
                 responseListener = new com.android.volley.Response.Listener<String>() {
