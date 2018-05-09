@@ -19,7 +19,6 @@ public class DateUtils {
     public static String getTodaysDateFormat01() {
         DateFormat df = new SimpleDateFormat("EEE, d MMM, HH:mm");
         String date = df.format(Calendar.getInstance().getTime());
-        Log.d(TAG, "Date: " + date);
 
         return date;
     }
@@ -28,14 +27,12 @@ public class DateUtils {
     public static String getTodaysDateFormat02() {
         DateFormat df = new SimpleDateFormat("dd/MM HH:mm");
         String date = df.format(Calendar.getInstance().getTime());
-        Log.d(TAG, "Date: " + date);
 
         return date;
     }
 
     public static int getTodaysDateInUnix() {
         Date date = Calendar.getInstance().getTime();
-
         int unix = (int) date.getTime();
 
         return unix;
@@ -54,7 +51,9 @@ public class DateUtils {
     public static Date addDays(Date date, int days) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
-        cal.add(Calendar.DATE, days); //minus number would decrement the days
+        /* Inserting a minus number will decrement the date */
+        cal.add(Calendar.DATE, days);
+
         return cal.getTime();
     }
 }

@@ -29,6 +29,7 @@ public class IntentServiceUtils {
 
     }
 
+    /* Parsing the weather array into ContentValues in order to save them into the SQL database */
     public static ContentValues[] parseWeatherArrayToCv(ArrayList<Weather> weather) {
 
         /* ContentValues to save data to SQL */
