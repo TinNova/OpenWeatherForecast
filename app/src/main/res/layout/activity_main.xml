@@ -122,9 +122,10 @@
                 android:id="@+id/tV_lastUpdate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:text="Updated 08/05 21:29"
+                android:layout_marginEnd="4dp"
+                tools:text="Updated 05/08 21:29"
                 android:textAlignment="textEnd"
+                android:textSize="12sp"
                 app:layout_constraintBottom_toBottomOf="@+id/iV_updateData"
                 app:layout_constraintEnd_toStartOf="@+id/iV_updateData"
                 app:layout_constraintTop_toTopOf="@+id/iV_updateData" />

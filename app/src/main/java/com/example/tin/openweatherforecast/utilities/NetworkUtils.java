@@ -45,11 +45,11 @@ public class NetworkUtils {
     public static final String BASE_IMAGE_URL = "http://openweathermap.org/img/w/";
     public static final String END_IMAGE_URL = ".png";
 
-    public static String getUrl(Context context) {
+    public static String getUrl(Context context, Double currentLongitude, Double currentLatitude) {
 
         //TODO: Add code that gets the users current Lat and Long
-        double currentLatitude = 51;
-        double currentLongitude = -0;
+//        double currentLatitude = 51;
+//        double currentLongitude = -0;
 
         return buildUrl(currentLatitude, currentLongitude);
     }

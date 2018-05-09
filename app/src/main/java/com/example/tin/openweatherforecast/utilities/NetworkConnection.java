@@ -106,7 +106,7 @@ public class NetworkConnection {
                     }
 
                     /* Getting today's date in Human Readable Format to help build weather data array */
-                    String todaysDate = DateUtils.getTodaysDateHumanReadable();
+                    String todaysDate = DateUtils.getTodaysDayDateMonthHourMinute();
                     Log.d(TAG, "Today's Date: " + todaysDate);
 
 

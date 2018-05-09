@@ -1,18 +1,27 @@
 package com.example.tin.openweatherforecast;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
-import android.support.v4.content.CursorLoader;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -68,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     String WIND_INTRO;
     String WIND_UNIT;
     String DEGREE_SYMBOL;
+    String UPDATED;
 
     /*
      * Needed for the RecyclerView
@@ -84,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     TextView tvTodayDescription;
     TextView tvTodayWindSpeed;
     TextView tvTodayWindDirection;
+    TextView tvLastDataUpdated;
     ImageView ivTodayIcon;
     Button btnRefreshData;
 
@@ -93,6 +104,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     ImageView ivUpdate;
 
+    private LocationManager locationManager;
+    private LocationListener locationListener;
+    Location location;
+
+    @SuppressLint("MissingPermission")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
 
                     showLoading();
-                    getData();
+                    getLonLat();
 
                 } else {
 
@@ -130,11 +146,21 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             @Override
             public void onClick(View v) {
 
-                getData();
+                /* If the connManager and networkInfo is NOT null, start the login() method */
+                if (mConnectionManager != null)
+                    mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
+                if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
+
+
+                    getLonLat();
+                } else {
+
+                    Toast.makeText(MainActivity.this, "No Internet Connection", Toast.LENGTH_SHORT).show();
+
+                }
 
             }
         });
-
 
         mWeatherUi = findViewById(R.id.l_weatherUi);
         mLoadingIndicator = findViewById(R.id.pB_loading_indicator);
@@ -145,6 +171,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         tvTodayWindSpeed = findViewById(R.id.tV_todayWindSpeed);
         tvTodayWindDirection = findViewById(R.id.tV_todayWindDirection);
         ivTodayIcon = findViewById(R.id.iV_todayIcon);
+        tvLastDataUpdated = findViewById(R.id.tV_lastUpdate);
 
         /* Creating The RecyclerView */
         // This will be used to attach the RecyclerView to the MovieAdapter
@@ -173,12 +200,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         // Checking If The Device Is Connected To The Internet
         mConnectionManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
+
         // If the connManager and networkInfo is NOT null, start the login() method
         if (mConnectionManager != null)
             mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
         if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
 
-            getData();
+            getLonLat();
 
         } else {
 
@@ -196,14 +224,114 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
     }
 
-    private void getData() {
+    private void updateLocation(Location location) {
+        Log.d(TAG, "Lat: " + location.getLatitude());
+        Log.d(TAG, "Lon: " + location.getLongitude());
+        Log.d(TAG, "updateLocation CODE RAN ");
+
+        Double lon = location.getLongitude();
+        Double lat = location.getLatitude();
+
+        getData(lon, lat);
+
+
+    }
+
+    /* Code that runs when Permission to use Location has been granted */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) {
+
+                Log.d(TAG, "CODE RAN Allowed Access to Location");
+
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+                location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                updateLocation(location);
+            }
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private void getLonLat() {
+
+        locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
+        locationListener = new LocationListener() {
+            /* Called whenever the location is updated */
+            @Override
+            public void onLocationChanged(Location location) {
+                Log.d(TAG, "Location: " + location.toString());
+                Log.d(TAG, "Lon: " + location.getLongitude());
+                Log.d(TAG, "Lat: " + location.getLatitude());
+                Log.d(TAG, "CODE RAN");
+
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            /* Called when the gps on the device is turned off */
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+        };
+
+        /* If build version is less than Marshmallow skip permission check */
+        if (Build.VERSION.SDK_INT < 23) {
+
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+            location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            updateLocation(location);
+
+        } else {
+
+
+        /* if app denied us permission from getting the location */
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+
+            /* Ask user for permission to access location */
+
+                Log.d(TAG, "CODE RAN Refused Access to Location");
+
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+
+            /* We already have permission, so get the devices location */
+            } else {
+
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+                location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                updateLocation(location);
+            }
+        }
+    }
+
+    private void getData(Double lon, Double lat) {
 
         try {
             /*
              * The getUrl method will return the URL as a String that we need to get the forecast
              * JSON for the weather.
              */
-            String weatherRequestUrl = NetworkUtils.getUrl(this);
+            String weatherRequestUrl = NetworkUtils.getUrl(this, lon, lat);
 
             /*
              * Use the String URL "weatherRequestUrl" to request the JSON from the server
@@ -407,6 +535,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         WIND_INTRO = getString(R.string.wind_intro);
         WIND_UNIT = getString(R.string.wind_speed_unit);
         DEGREE_SYMBOL = getString(R.string.degrees_symbol);
+        UPDATED = getString(R.string.last_update);
 
                     /* Populating the current times weather */
         tvTodayDate.setText(weather.get(0).getCalculateDateTime());
@@ -414,6 +543,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         tvTodayDescription.setText(weather.get(0).getWeatherDescription());
         tvTodayWindSpeed.setText((String.valueOf(WIND_INTRO + weather.get(0).getWindSpeed() + WIND_UNIT)));
         tvTodayWindDirection.setText((String.valueOf(weather.get(0).getWindDegree())));
+        tvLastDataUpdated.setText(UPDATED + " " + DateUtils.getTodaysDateMonthHourMinute());
 
         Picasso.with(MainActivity.this).load(weather.get(0).getWeatherIcon())
                 .into(ivTodayIcon);

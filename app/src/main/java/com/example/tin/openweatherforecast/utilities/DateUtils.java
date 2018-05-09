@@ -16,8 +16,17 @@ public class DateUtils {
     private static final String TAG = DateUtils.class.getSimpleName();
 
     /* Gets this moments current DateTime in human readable format */
-    public static String getTodaysDateHumanReadable() {
+    public static String getTodaysDayDateMonthHourMinute() {
         DateFormat df = new SimpleDateFormat("EEE, d MMM, HH:mm");
+        String date = df.format(Calendar.getInstance().getTime());
+        Log.d(TAG, "Date: " + date);
+
+        return date;
+    }
+
+    /* Gets this moments current DateTime in human readable format */
+    public static String getTodaysDateMonthHourMinute() {
+        DateFormat df = new SimpleDateFormat("dd/MM HH:mm");
         String date = df.format(Calendar.getInstance().getTime());
         Log.d(TAG, "Date: " + date);
 
