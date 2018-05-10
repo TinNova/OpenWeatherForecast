@@ -32,7 +32,6 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
                 "); ";
 
         sqLiteDatabase.execSQL(SQL_CREATE_WEATHER_TABLE);
-
     }
 
     /*
@@ -43,6 +42,5 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + WeatherContract.WeatherEntry.TABLE_NAME);
         onCreate(sqLiteDatabase);
-
     }
 }

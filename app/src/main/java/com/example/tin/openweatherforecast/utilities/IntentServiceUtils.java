@@ -11,10 +11,6 @@ import java.util.ArrayList;
 
 import static com.example.tin.openweatherforecast.MainActivity.SQL_WEATHER_DATA;
 
-/**
- * Created by Tin on 08/05/2018.
- */
-
 public class IntentServiceUtils {
 
     private static final String TAG = IntentServiceUtils.class.getSimpleName();
@@ -29,7 +25,6 @@ public class IntentServiceUtils {
         }
 
         return sqlIntentBundle;
-
     }
 
     /* Parsing the weather array into ContentValues in order to save them into the SQL database */
@@ -64,7 +59,6 @@ public class IntentServiceUtils {
             weatherValues.put(WeatherContract.WeatherEntry.COLUMN_WIND_DEGREE, windDegree);
 
             weatherContentValues[i] = weatherValues;
-
         }
 
         Log.d(TAG, "weatherContentValues" + weatherContentValues);

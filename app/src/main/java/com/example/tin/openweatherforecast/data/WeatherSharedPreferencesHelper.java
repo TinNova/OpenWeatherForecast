@@ -24,7 +24,6 @@ public class WeatherSharedPreferencesHelper {
         MainActivity.weatherSharedPref.edit().putString(SHARED_PREF_LAST_UPDATE, DateUtils.getTodaysDateFormat02()).apply();
 
         Log.d(TAG, "sharedPreferences Data Saved!");
-
     }
 
     /* Getting data from SharedPreferences */
@@ -34,7 +33,5 @@ public class WeatherSharedPreferencesHelper {
         String lastUpdate = MainActivity.weatherSharedPref.getString(SHARED_PREF_LAST_UPDATE, "");
 
         return new String[]{lat, lon, lastUpdate};
-
     }
-
 }

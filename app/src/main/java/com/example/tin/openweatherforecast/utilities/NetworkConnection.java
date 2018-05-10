@@ -70,9 +70,7 @@ public class NetworkConnection {
 
                 // Send mWeather ArrayList to MainActivity
                 listener.getWeatherArrayList(mWeather);
-
             }
-
         };
 
         // Handler for when the server returns an error response
@@ -85,12 +83,10 @@ public class NetworkConnection {
 
         // This is the body of the Request
         StringRequest request = new StringRequest(Request.Method.GET, url, responseListener, errorListener) {
-
         };
 
 
         mRequestQueue.add(request);
-
     }
 }
 

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
@@ -58,6 +59,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     /* ID that is responsible for identifying the loader that loads the Weather data */
     private static final int WEATHER_LOADER_ID = 99;
+
+    /* Key to retrieve data saved within onSavedInstantState */
+    String SAVED_INSTANT_STATE_KEY = "saved_instant_state_key";
 
     /*
      * Int representing whether the loader that loads the Weather data has run previously or not
@@ -119,13 +123,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private TextView tvNoData;
     private ImageView ivUpdate;
 
-    /* lon and lat */
-    private double mLat;
-    private double mLon;
-
     /* Reference to SharedPreferences */
     public static SharedPreferences weatherSharedPref;
-
 
     @SuppressLint("MissingPermission")
     @Override
@@ -186,20 +185,27 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         /* Initialising the mWeather ArrayList<> to avoid a null exception */
         mWeather = new ArrayList<>();
 
-        /*
-         * This code checks if there is an internet connection and whether the devices location
-         * is attainable.
-         *
-         * If both are true, then the code will create the OpenWeatherMap url and download the
-         * response.
-         *
-         * If either are false, then the code will display the data available in the SQLite
-         * database.
-         *
-         * If the data within the database is was last updated over 24 hours ago or if there isn't
-         * any data saved, it will display a no data screen.
-         */
-        downloadResponseOrDisplaySqlData();
+
+
+        /* If There isn't a savedInstanceState, Download The Data And Build The RecyclerView */
+        if (savedInstanceState == null) {
+
+            /*
+             * This method either retrieves data from the OpenWeatherApi or from the SQL database
+             * based on whether or not the device has access to the internet and location services.
+             */
+            downloadResponseOrDisplaySqlData();
+        } else {
+
+            /* Retrieve the mWeather ArrayList from onSavedInstanceState */
+            mWeather = savedInstanceState.getParcelableArrayList(SAVED_INSTANT_STATE_KEY);
+
+            /* Pass the mWeather ArrayList to the adapter */
+            mAdapter = new WeatherAdapter(mWeather, getApplicationContext(), DEGREE_SYMBOL);
+            mRecyclerView.setAdapter(mAdapter);
+
+            populateTodaysDate(mWeather, 1, 200.00, 200.00);
+        }
 
         /* Button used to refresh the weather data */
         btnRefreshData.setOnClickListener(new View.OnClickListener() {
@@ -247,23 +253,19 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 Log.d(TAG, "Lon: " + location.getLongitude());
                 Log.d(TAG, "Lat: " + location.getLatitude());
                 Log.d(TAG, "CODE RAN");
-
             }
 
             @Override
             public void onStatusChanged(String provider, int status, Bundle extras) {
-
             }
 
             @Override
             public void onProviderEnabled(String provider) {
-
             }
 
             /* Called when the gps on the device is turned off */
             @Override
             public void onProviderDisabled(String provider) {
-
             }
         };
 
@@ -274,9 +276,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
             deviceLocation = updateLocation(location);
-
         } else {
-
 
             /* if app denied us permission from getting the location */
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -284,7 +284,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 /* Ask user for permission to access location */
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
 
-            /* We already have permission, so get the devices location */
+                /* We already have permission, so get the devices location */
             } else {
 
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_UPDATE_TIME, LOCATION_UPDATE_DISTANCE, locationListener);
@@ -315,6 +315,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
     }
 
+    /* Required in order to retrieve the devices location on OnCreate */
     private double[] updateLocation(Location location) {
 
         if (location != null) {
@@ -324,13 +325,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             return new double[]{updateLocationLat, updateLocationLon};
         } else {
 
+            /* Return 200.000 if the location could not be obtained to avoid a null pointer exception */
             return new double[]{UPDATE_LOCATION_ERROR, UPDATE_LOCATION_ERROR};
         }
-
     }
 
-
-    private void getData(double lat, double lon) {
+    /* Getting data from the OpenWeatherMap Api */
+    private void getData(final double lat, final double lon) {
 
         try {
             /*
@@ -350,7 +351,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     Log.i(TAG, "ArrayList Weather: " + weather);
 
                     /* dataType, SQL = 1, API = 2 */
-                    populateTodaysDate(weather, 2);
+                    populateTodaysDate(weather, 2, lat, lon);
 
                     //TODO: Launch this from NetworkConnection, and put as much of it into IntentServiceUtils
                     /* Save Weather ContentValues to Bundle */
@@ -360,7 +361,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
                     saveSqlIntent.putExtras(weatherDataBundle);
                     startService(saveSqlIntent);
-
                 }
             });
 
@@ -393,6 +393,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             @Override
             protected void onStartLoading() {
                 if (mSqlWeatherData != null) {
+
                     /* Delivers any previously loaded data immediately */
                     deliverResult(mSqlWeatherData);
                 } else {
@@ -459,7 +460,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                         data.getString(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_ICON_ID)),
                         data.getDouble(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_WIND_SPEED)),
                         data.getDouble(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_WIND_DEGREE))
-
                 );
 
                 Log.d(TAG, "Row_Id" + data.getLong(data.getColumnIndex(WeatherContract.WeatherEntry._ID)));
@@ -482,7 +482,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 showNoDataScreen();
                 /* Data in SQL is over 24hrs and there's no internet, show no data screen */
                 deleteWeatherData();
-
             } else {
 
                 /* if Adapter is not empty, update the adapter */
@@ -491,16 +490,14 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     // Update the adapter with the new list
                     mAdapter.notifyDataSetChanged();
                     showWeatherDataView();
-
                 } else {
-                    /* dataType, SQL = 1, API = 2 */
-                    populateTodaysDate(mWeather, 1);
 
+                    /* dataType, SQL = 1, API = 2 */
+                    populateTodaysDate(mWeather, 1, 200.000, 200.000);
                 }
 
+                /* Set int to 1 to indicate an instance of a Loader has been created */
                 loaderCreated = 1;
-
-
             }
 
             /* Cursor is empty and there is no internet connection, show no data screen */
@@ -508,7 +505,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
             showNoDataScreen();
             Log.v(TAG, "cursor is Empty");
-
         }
 
         assert data != null;
@@ -528,7 +524,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
 
     /* Helper Class that populates today's feature date and passes weather ArrayList to WeatherAdapter */
-    private void populateTodaysDate(ArrayList<Weather> weather, int dataType) {
+    private void populateTodaysDate(ArrayList<Weather> weather, int dataType, double lat, double lon) {
 
         WIND_INTRO = getString(R.string.wind_intro);
         WIND_UNIT = getString(R.string.wind_speed_unit);
@@ -538,8 +534,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         LONGITUDE = getString(R.string.longitude);
 
         Log.d(TAG, "dataType: " + dataType);
+
         /*
-         *if data came from SQL, display the lat/lon and update time that was saved in SharePref
+         * if data came from SQL, display the lat/lon and update time that was saved in SharePref
          * at the same time
          */
         if (dataType == 1) {
@@ -550,17 +547,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
             tvLocation.setText((LATITUDE + " " + sharedPreflat + ", " + LONGITUDE + " " + sharedPrefLon));
             tvLastDataUpdated.setText(sharedPrefLastUpdate);
-
         } else {
 
             /* Rounding the lat/lon doubles to two decimal places */
-            double roundedLat = LocationUtils.round(mLat, 2);
-            double roundedLon = LocationUtils.round(mLon, 2);
+            double roundedLat = LocationUtils.round(lat, 2);
+            double roundedLon = LocationUtils.round(lon, 2);
 
             tvLocation.setText((String.valueOf(LATITUDE + " " + roundedLat + ", " + LONGITUDE + " " + roundedLon)));
 
             tvLastDataUpdated.setText(UPDATED + " " + DateUtils.getTodaysDateFormat02());
-
         }
 
         /* Populating the current times weather */
@@ -580,7 +575,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         mAdapter.notifyDataSetChanged();
 
         showWeatherDataView();
-
     }
 
     /*
@@ -597,6 +591,72 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         Toast.makeText(getBaseContext(), uri.toString(), Toast.LENGTH_LONG).show();
         Log.d(TAG, "REMOVE: " + getBaseContext() + uri.toString());
+    }
+
+    /*
+     * This code checks if there is an internet connection and whether the devices location
+     * is attainable.
+     *
+     * If both are true, then the code will create the OpenWeatherMap url and download the
+     * response.
+     *
+     * If either are false, then the code will display the data available in the SQLite
+     * database.
+     *
+     * If the data within the database is was last updated over 24 hours ago or if there isn't
+     * any data saved, it will display a no data screen.
+     */
+    private void downloadResponseOrDisplaySqlData() {
+
+        // If the connManager and networkInfo is NOT null, start the login() method
+        if (mConnectionManager != null)
+            mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
+        if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
+
+            /* if GPS is enabled */
+            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+
+                /* Shows loading screen and hides the UI that contains weather data */
+                showLoading();
+
+                /* Requesting the Latitude and Longitude of the device */
+                double[] deviceLocationArray = getLonLat();
+
+                /* If there wasn't an error in getting the lat/lon, continue else, launch the SQL data */
+                if (!Objects.equals(deviceLocationArray[0], UPDATE_LOCATION_ERROR)) {
+                    double deviceLat = deviceLocationArray[0];
+                    double deviceLon = deviceLocationArray[1];
+
+                    getData(deviceLat, deviceLon);
+                } else {
+
+                    Toast.makeText(MainActivity.this, getString(R.string.no_gps), Toast.LENGTH_SHORT).show();
+                    displaySqlData();
+
+                }
+            } else {
+
+                Toast.makeText(MainActivity.this, getString(R.string.no_gps), Toast.LENGTH_SHORT).show();
+                displaySqlData();
+
+            }
+        } else {
+
+            Toast.makeText(MainActivity.this, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
+            displaySqlData();
+        }
+    }
+
+    public void displaySqlData() {
+
+        /* If an instance of the loader already exists, restart it before loading the SQL data */
+        if (loaderCreated == 1) {
+
+            getSupportLoaderManager().restartLoader(WEATHER_LOADER_ID, null, MainActivity.this);
+        }
+
+            /* Start loading the SQL data */
+        getSupportLoaderManager().initLoader(WEATHER_LOADER_ID, null, MainActivity.this);
     }
 
     /* Show Loading Indicator / Hide Weather Data */
@@ -629,60 +689,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         btnRefreshData.setVisibility(View.VISIBLE);
         /* Show the No Data Text */
         tvNoData.setVisibility(View.VISIBLE);
-
     }
 
-    private void downloadResponseOrDisplaySqlData() {
-
-        // If the connManager and networkInfo is NOT null, start the login() method
-        if (mConnectionManager != null)
-            mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
-        if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
-
-            /* if GPS is enabled */
-            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-
-                /* Shows loading screen and hides the UI that contains weather data */
-                showLoading();
-                /* Requesting the Latitude and Longitude of the device */
-                double[] deviceLocationArray = getLonLat();
-
-                /* If there wasn't an error in getting the lat/lon, continue else, launch the SQL data */
-                if (!Objects.equals(deviceLocationArray[0], UPDATE_LOCATION_ERROR)) {
-                    double deviceLat = deviceLocationArray[0];
-                    double deviceLon = deviceLocationArray[1];
-
-                    getData(deviceLat, deviceLon);
-
-                } else {
-
-                    Toast.makeText(MainActivity.this, getString(R.string.no_gps), Toast.LENGTH_SHORT).show();
-                    displaySqlData();
-                }
-
-            } else {
-
-                Toast.makeText(MainActivity.this, getString(R.string.no_gps), Toast.LENGTH_SHORT).show();
-                displaySqlData();
-            }
-
-        } else {
-
-            Toast.makeText(MainActivity.this, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
-            displaySqlData();
-        }
-    }
-
-    private void displaySqlData() {
-
-        /* If an instance of the loader already exists, restart it before loading the SQL data */
-        if (loaderCreated == 1) {
-
-            getSupportLoaderManager().restartLoader(WEATHER_LOADER_ID, null, MainActivity.this);
-        }
-
-            /* Start loading the SQL data */
-        getSupportLoaderManager().initLoader(WEATHER_LOADER_ID, null, MainActivity.this);
-
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        // Saving mWeather to be reused should the device rotate
+        outState.putParcelableArrayList(SAVED_INSTANT_STATE_KEY, mWeather);
+        super.onSaveInstanceState(outState);
     }
 }

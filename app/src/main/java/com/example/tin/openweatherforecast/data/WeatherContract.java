@@ -7,8 +7,10 @@ public class WeatherContract {
 
     /* The Authority, this is how your code knows which Content Provider to access */
     public static final String AUTHORITY = "com.example.tin.openweatherforecast";
+
     /* The base content URI = "content://" + <authority> */
     private static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
+
     /*
      * Here we define the possible paths for accessing data in this contract
      * This is the path for the "weather" directory (the weather table)
@@ -45,6 +47,5 @@ public class WeatherContract {
         public static final String COLUMN_ICON_ID = "icon_id";
         public static final String COLUMN_WIND_SPEED = "wind_speed";
         public static final String COLUMN_WIND_DEGREE = "wind_degree";
-
     }
 }

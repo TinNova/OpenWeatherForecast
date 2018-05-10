@@ -29,6 +29,7 @@ public class WeatherProvider extends ContentProvider {
 
     /* Defining a static buildUriMatcher method that associates URI's with their int match */
     private static UriMatcher buildUriMatcher() {
+
         /* .NO_MATCH defines it as an empty uriMatcher (because we haven't added an int match yet */
         UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
@@ -38,6 +39,7 @@ public class WeatherProvider extends ContentProvider {
          * content://com.example.tin.openweatherforecast/100
          */
         uriMatcher.addURI(WeatherContract.AUTHORITY, WeatherContract.PATH_WEATHER, CODE_WEATHER);
+
         /*
          * This is for a single item
          * content://com.example.tin.openweatherforecast/2/101
@@ -49,7 +51,6 @@ public class WeatherProvider extends ContentProvider {
 
     /* Variable of the FavouriteDbHelper so it can be initialised in onCreate */
     private WeatherDbHelper mWeatherDbHelper;
-
 
     @Override
     public boolean onCreate() {
@@ -88,7 +89,6 @@ public class WeatherProvider extends ContentProvider {
                 /* Default Exception */
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
-
         }
 
         /* Set a notification URI on the Cursor */
@@ -123,8 +123,10 @@ public class WeatherProvider extends ContentProvider {
                             rowsInserted++;
                         }
                     }
+
                     db.setTransactionSuccessful();
                 } finally {
+
                     db.endTransaction();
                 }
 

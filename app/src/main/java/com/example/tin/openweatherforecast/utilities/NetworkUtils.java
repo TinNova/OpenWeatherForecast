@@ -33,7 +33,6 @@ public class NetworkUtils {
     private static final String units = "metric";
     private static final String API_KEY = BuildConfig.OPEN_WEATHER_MAP_API_KEY;
 
-
     /* Parameters that allow us to specify the feed type, unit type and api key */
     private static final String FORMAT_PARAM = "mode";
     private static final String UNITS_PARAM = "units";
@@ -50,7 +49,6 @@ public class NetworkUtils {
     public static String getUrl(double currentLatitude, double currentLongitude) {
 
         return buildUrl(currentLatitude, currentLongitude);
-
     }
 
 
@@ -71,6 +69,7 @@ public class NetworkUtils {
                 .build();
 
         try {
+
             URL weatherQueryUrl = new URL(openWeatherQueryUri.toString());
             Log.v(TAG, "weatherQueryUrl: " + weatherQueryUrl);
             convertUrlToString(weatherQueryUrl);
@@ -84,6 +83,5 @@ public class NetworkUtils {
     private static String convertUrlToString(URL url) throws MalformedURLException {
 
         return url.toString();
-
     }
 }

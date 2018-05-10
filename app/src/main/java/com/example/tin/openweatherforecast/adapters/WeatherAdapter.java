@@ -63,7 +63,6 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHold
 
         Picasso.with(context).load(weather.getWeatherIcon())
                 .into(viewHolder.ivIcon);
-
     }
 
     /*
@@ -71,6 +70,7 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHold
      */
     @Override
     public int getItemCount() {
+
         return mWeather.size();
     }
 
@@ -85,7 +85,6 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHold
         final TextView tvTemp;
         final ImageView ivIcon;
 
-
         public ViewHolder(View itemView) {
             super(itemView);
 
@@ -93,8 +92,6 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHold
             tvDescription = itemView.findViewById(R.id.tV_description);
             tvTemp = itemView.findViewById(R.id.tV_temp);
             ivIcon = itemView.findViewById(R.id.ic_weather);
-
         }
     }
-
 }

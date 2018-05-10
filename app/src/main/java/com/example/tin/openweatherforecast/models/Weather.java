@@ -8,11 +8,6 @@ import com.example.tin.openweatherforecast.utilities.NetworkUtils;
 
 public class Weather implements Parcelable {
 
-    //TODO: Write out all of the code to save a data of Weather
-    // Once completed and tested. We need to figure out how to only keep data that displays the
-    // days data at 12:00:00 (Later once completed we can try figure out how to show the days
-    // high and low data
-
     private int unixDateTime;
     private String calculateDateTime;
     private double tempCurrent;
@@ -66,6 +61,7 @@ public class Weather implements Parcelable {
 
     @Override
     public int describeContents() {
+
         return 0;
     }
 
@@ -84,42 +80,52 @@ public class Weather implements Parcelable {
     }
 
     public int getUnixDateTime() {
+
         return unixDateTime;
     }
 
     public String getCalculateDateTime() {
+
         return calculateDateTime;
     }
 
     public double getTempCurrent() {
+
         return tempCurrent;
     }
 
     public double getTempMin() {
+
         return tempMin;
     }
 
     public double getTempMax() {
+
         return tempMax;
     }
 
     public String getWeatherTitle() {
+
         return weatherTitle;
     }
 
     public String getWeatherDescription() {
+
         return weatherDescription;
     }
 
     public String getWeatherIcon() {
+
         return NetworkUtils.BASE_IMAGE_URL + weatherIcon + NetworkUtils.END_IMAGE_URL;
     }
 
     public double getWindSpeed() {
+
         return windSpeed;
     }
 
     public double getWindDegree() {
+
         return windDegree;
     }
 }

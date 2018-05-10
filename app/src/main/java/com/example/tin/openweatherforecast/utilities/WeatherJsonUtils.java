@@ -49,40 +49,45 @@ public class WeatherJsonUtils {
         ArrayList<Weather> mWeather = new ArrayList<>();
 
         try {
-            // Define the entire response as a JSON Object
+
+            /* Define the entire response as a JSON Object */
             JSONObject openWeatherJsonObject = new JSONObject(response);
-            // if cod is not equal to 200, then something went wrong, show a no data screen
+
+            /* if cod is not equal to 200, then something went wrong, show a no data screen */
             if (openWeatherJsonObject.getInt(OWM_MESSAGE_CODE) != 200) {
                 //TODO: Handle this case gracefully
             }
 
-                    /* Getting today's date in Human Readable Format to help build weather data array */
+            /* Getting today's date in Human Readable Format to help build weather data array */
             String todaysDate = DateUtils.getTodaysDateFormat01();
             Log.d(TAG, "Today's Date: " + todaysDate);
 
-
-                    /* Define the "list" JsonArray as a JSONArray */
+            /* Define the "list" JsonArray as a JSONArray */
             JSONArray listJsonArray = openWeatherJsonObject.getJSONArray(OWN_JSON_LIST);
 
-                    /* Using a for loop to cycle through each JsonObject within the listJsonArray */
+            /* Using a for loop to cycle through each JsonObject within the listJsonArray */
             for (int i = 0; i < listJsonArray.length(); i++) {
 
-                // Get the ith forecast in the JSON and define it as a JsonObject
+                /* Get the ith forecast in the JSON and define it as a JsonObject */
                 JSONObject forecastJsonObject = listJsonArray.getJSONObject(i);
 
                 int unixDateTime = forecastJsonObject.getInt(OWM_UNIX_DT);
                 String calculateDateTime = forecastJsonObject.getString(OWM_CALC_DT);
 
-                // Get the "main" JsonObject from the forecastJsonObject
-                // and define it as a JsonObject
+                /*
+                 * Get the "main" JsonObject from the forecastJsonObject
+                 * and define it as a JsonObject
+                 */
                 JSONObject mainJsonObject = forecastJsonObject.getJSONObject(OWN_JSON_MAIN);
 
                 double tempCurrent = mainJsonObject.getDouble(OWN_TEMP_CURRENT);
                 double tempMin = mainJsonObject.getDouble(OWN_TEMP_MIN);
                 double tempMax = mainJsonObject.getDouble(OWN_TEMP_MAX);
 
-                // Get the "weather" JsonArray from the forecastJsonObject
-                // and define it as a JsonArray
+                /*
+                 * Get the "weather" JsonArray from the forecastJsonObject
+                 * and define it as a JsonArray
+                 */
                 JSONArray weatherJsonArray = forecastJsonObject.getJSONArray(OWN_JSON_WEATHER);
                 // Get the 0th JsonObject from the weatherJsonArray
                 // and define it as a JsonObject
@@ -92,8 +97,10 @@ public class WeatherJsonUtils {
                 String weatherDescription = weatherJsonObject.getString(OWN_DESCRIPTION);
                 String weatherIcon = weatherJsonObject.getString(OWN_ICON);
 
-                // Get the "wind" JsonObject from the forecastJsonObject
-                // and define it as a JsonObject
+                /*
+                 * Get the "wind" JsonObject from the forecastJsonObject
+                 * and define it as a JsonObject
+                 */
                 JSONObject windJsonObject = forecastJsonObject.getJSONObject(OWN_JSON_WIND);
 
                 double windSpeed = windJsonObject.getDouble(OWN_WIND_SPEED);
@@ -121,10 +128,7 @@ public class WeatherJsonUtils {
 
                     mWeather.add(weather);
                     Log.d(TAG, "Weather List: " + weather);
-
-
                 }
-
             }
 
 
