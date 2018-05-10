@@ -16,14 +16,14 @@ public class WeatherCursorLoader extends AsyncTaskLoader<Cursor> {
 
     @Override
     protected void onStartLoading() {
-        Log.d(LOG_TAG, "ON START HIT");
+
         forceLoad();
     }
 
     @Nullable
     @Override
     public Cursor loadInBackground() {
-        Log.d(LOG_TAG, "LOAD IN BG HIT");
+
         try {
             return getContext().getContentResolver().query(
                     WeatherContract.WeatherEntry.CONTENT_URI,
@@ -33,6 +33,7 @@ public class WeatherCursorLoader extends AsyncTaskLoader<Cursor> {
                     WeatherContract.WeatherEntry.COLUMN_UNIX_DATE + " ASC"
             );
         } catch (Exception e) {
+
             e.printStackTrace();
             Log.e(LOG_TAG, e.getLocalizedMessage());
         }

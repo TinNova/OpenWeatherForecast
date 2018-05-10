@@ -206,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             mAdapter = new WeatherAdapter(mWeather, getApplicationContext(), DEGREE_SYMBOL);
             mRecyclerView.setAdapter(mAdapter);
 
-            // If the connManager and networkInfo is NOT null, start the login() method
+            /* If the connManager and networkInfo is NOT null, start the login() method */
             if (mConnectionManager != null)
                 mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
             if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
@@ -228,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             @Override
             public void onClick(View v) {
 
-                // If the connManager and networkInfo is NOT null, start the login() method
+                /* If the connManager and networkInfo is NOT null, start the login() method */
                 if (mConnectionManager != null)
                     mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
                 if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
@@ -253,7 +253,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             @Override
             public void onClick(View v) {
 
-                // If the connManager and networkInfo is NOT null, start the login() method
+                /* If the connManager and networkInfo is NOT null, start the login() method */
                 if (mConnectionManager != null)
                     mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
                 if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
@@ -401,7 +401,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     /* dataType, SQL = 1, API = 2 */
                     populateTodaysDate(weather, 2, lat, lon);
 
-                    //TODO: Launch this from NetworkConnection, and put as much of it into IntentServiceUtils
                     /* Save Weather ContentValues to Bundle */
                     Bundle weatherDataBundle = IntentServiceUtils.saveWeatherDataToSql(weather);
                     /* Send Bundle to the SqlIntentService to be saved in SQLite */
@@ -484,7 +483,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 /* if Adapter is not empty, update the adapter */
                 if (mAdapter != null) {
 
-                    // Update the adapter with the new list
+                    /* Update the adapter with the new list */
                     mAdapter.notifyDataSetChanged();
                     showWeatherDataView();
                 } else {
@@ -597,7 +596,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
      */
     private void downloadResponseOrDisplaySqlData() {
 
-        // If the connManager and networkInfo is NOT null, start the login() method
+        /* If the connManager and networkInfo is NOT null, start the login() method */
         if (mConnectionManager != null)
             mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
         if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
@@ -682,7 +681,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        // Saving mWeather to be reused should the device rotate
+        /* Saving mWeather to be reused should the device rotate */
         outState.putParcelableArrayList(SAVED_INSTANT_STATE_KEY, mWeather);
 
         super.onSaveInstanceState(outState);
