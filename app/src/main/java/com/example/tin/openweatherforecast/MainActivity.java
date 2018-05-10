@@ -84,6 +84,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     /* If codes returns this value as GPS lat/lon there was an error getting the devices location */
     private double UPDATE_LOCATION_ERROR = 200.000;
 
+    /* When data is pulled from database, a lat and lon is pulled from SharedPreference */
+    double LAT_LON_IRRELEVANT = 200.000;
+
+
     /* Used to get the devices location */
     private LocationManager locationManager;
     private LocationListener locationListener;
@@ -185,8 +189,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         /* Initialising the mWeather ArrayList<> to avoid a null exception */
         mWeather = new ArrayList<>();
 
-
-
         /* If There isn't a savedInstanceState, Download The Data And Build The RecyclerView */
         if (savedInstanceState == null) {
 
@@ -204,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             mAdapter = new WeatherAdapter(mWeather, getApplicationContext(), DEGREE_SYMBOL);
             mRecyclerView.setAdapter(mAdapter);
 
-            populateTodaysDate(mWeather, 1, 200.00, 200.00);
+            populateTodaysDate(mWeather, 1, LAT_LON_IRRELEVANT, LAT_LON_IRRELEVANT);
         }
 
         /* Button used to refresh the weather data */
@@ -493,7 +495,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 } else {
 
                     /* dataType, SQL = 1, API = 2 */
-                    populateTodaysDate(mWeather, 1, 200.000, 200.000);
+                    populateTodaysDate(mWeather, 1, LAT_LON_IRRELEVANT, LAT_LON_IRRELEVANT);
                 }
 
                 /* Set int to 1 to indicate an instance of a Loader has been created */

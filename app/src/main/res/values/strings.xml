@@ -16,6 +16,10 @@
     <string name="icon_content_desc">Weather icon of the days weather</string>
 
     <!-- activity_main.xml -->
+    <string name="update_data_img_content_desc">Click to update the weather data on the screen</string>
+
+
+    <!-- activity_main.xml -->
     <string name="no_data_text">There is no data to display</string>
 
     <!-- MainActivity.java -->

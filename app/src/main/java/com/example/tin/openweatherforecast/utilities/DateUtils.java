@@ -7,10 +7,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-/**
- * Created by Tin on 07/05/2018.
- */
-
 public class DateUtils {
 
     private static final String TAG = DateUtils.class.getSimpleName();
