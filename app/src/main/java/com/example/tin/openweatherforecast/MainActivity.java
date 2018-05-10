@@ -36,6 +36,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.tin.openweatherforecast.adapters.WeatherAdapter;
+import com.example.tin.openweatherforecast.data.WeatherCursorLoader;
 import com.example.tin.openweatherforecast.data.WeatherSharedPreferencesHelper;
 import com.example.tin.openweatherforecast.models.Weather;
 import com.example.tin.openweatherforecast.data.WeatherContract;
@@ -430,63 +431,14 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
      * @param bundle   Any arguments supplied by the caller
      * @return A new Loader instance that is ready to start loading.
      */
+    @NonNull
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-
-        return new AsyncTaskLoader<Cursor>(this) {
-
-            Cursor mSqlWeatherData = null;
-
-            @Override
-            protected void onStartLoading() {
-                if (mSqlWeatherData != null) {
-
-                    /* Delivers any previously loaded data immediately */
-                    deliverResult(mSqlWeatherData);
-                } else {
-                    /* Force a new load */
-                    forceLoad();
-                }
-            }
-
-            @Nullable
-            @Override
-            public Cursor loadInBackground() {
-
-                Log.d(TAG, "loadInBackground");
-
-                try {
-                    /* This returns every column in every row in ascending order by UnixTimeDate */
-                    return getContentResolver().query(
-                            WeatherContract.WeatherEntry.CONTENT_URI,
-                            null,
-                            null,
-                            null,
-                            WeatherContract.WeatherEntry.COLUMN_UNIX_DATE + " ASC"
-                    );
-                } catch (Exception e) {
-                    Log.e(TAG, "Failed to asynchronously load data.");
-                    e.printStackTrace();
-                    return null;
-                }
-            }
-
-            // deliverResult sends the result of the load, a Cursor, to the registered listener
-            public void deliverResult(Cursor data) {
-                mSqlWeatherData = data;
-                super.deliverResult(data);
-            }
-        };
+    public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
+        return new WeatherCursorLoader(this);
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-
-        /* Here We Are Accessing The SQLite Query We Received In The Method getSqlCompanies() Which Is Set To Read All Rows
-         * We're Going Through Each Row With A For Loop And Putting Them Into Our Weather Model
-         *
-         * @param cursor
-         */
+    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
         if (data != null && data.getCount() > 0) {
             data.moveToFirst();
             for (int count = 0; count < data.getCount(); count++) {
@@ -508,7 +460,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                         data.getDouble(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_WIND_SPEED)),
                         data.getDouble(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_WIND_DEGREE))
                 );
-
                 Log.d(TAG, "Row_Id" + data.getLong(data.getColumnIndex(WeatherContract.WeatherEntry._ID)));
 
                 mWeather.add(weather);
@@ -517,7 +468,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
                 data.moveToNext();
             }
-
             /* The last time SQL was updated and the current time in Unix */
             int unixTimeDate = mWeather.get(0).getUnixDateTime();
             int dateNowUnix = DateUtils.getTodaysDateInUnix();
@@ -556,17 +506,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         assert data != null;
         data.close();
+
     }
 
-    /*
-     * Called when a previously created loader is being reset, and thus
-     * making its data unavailable.
-     * onLoaderReset removes any references this activity had to the loader's data.
-     *
-     * @param loader The Loader that is being reset.
-     */
     @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
+    public void onLoaderReset(@NonNull Loader<Cursor> loader) {
     }
 
 
