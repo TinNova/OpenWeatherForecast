@@ -11,16 +11,13 @@
     <string name="latitude">Lat</string>
     <string name="longitude">Lon</string>
 
-
     <!-- activity_main.xml, weather_list_item.xml -->
     <string name="icon_content_desc">Weather icon of the days weather</string>
 
     <!-- activity_main.xml -->
     <string name="update_data_img_content_desc">Click to update the weather data on the screen</string>
-
-
-    <!-- activity_main.xml -->
     <string name="no_data_text">There is no data to display</string>
+    <string name="refresh_button">Refresh</string>
 
     <!-- MainActivity.java -->
     <string name="no_internet_connection">No Internet Connection, please connect to internet to update the weather</string>

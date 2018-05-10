@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
@@ -61,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private static final int WEATHER_LOADER_ID = 99;
 
     /* Key to retrieve data saved within onSavedInstantState */
-    String SAVED_INSTANT_STATE_KEY = "saved_instant_state_key";
+    private final String SAVED_INSTANT_STATE_KEY = "saved_instant_state_key";
 
     /*
      * Int representing whether the loader that loads the Weather data has run previously or not
@@ -78,11 +77,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private NetworkInfo mNetworkInfo;
 
     /* Request Location Updates values */
-    private int LOCATION_UPDATE_TIME = 100000;
-    private int LOCATION_UPDATE_DISTANCE = 100000;
+    private final int LOCATION_UPDATE_TIME = 100000;
+    private final int LOCATION_UPDATE_DISTANCE = 100000;
 
     /* If codes returns this value as GPS lat/lon there was an error getting the devices location */
-    private double UPDATE_LOCATION_ERROR = 200.000;
+    private final double UPDATE_LOCATION_ERROR = 200.000;
 
     /* When data is pulled from database, a lat and lon is pulled from SharedPreference */
     double LAT_LON_IRRELEVANT = 200.000;
@@ -649,7 +648,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
     }
 
-    public void displaySqlData() {
+    private void displaySqlData() {
 
         /* If an instance of the loader already exists, restart it before loading the SQL data */
         if (loaderCreated == 1) {

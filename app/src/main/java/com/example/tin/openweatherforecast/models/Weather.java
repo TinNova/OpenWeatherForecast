@@ -8,16 +8,16 @@ import com.example.tin.openweatherforecast.utilities.NetworkUtils;
 
 public class Weather implements Parcelable {
 
-    private int unixDateTime;
-    private String calculateDateTime;
-    private double tempCurrent;
-    private double tempMin;
-    private double tempMax;
-    private String weatherTitle;
-    private String weatherDescription;
-    private String weatherIcon;
-    private double windSpeed;
-    private double windDegree;
+    private final int unixDateTime;
+    private final String calculateDateTime;
+    private final double tempCurrent;
+    private final double tempMin;
+    private final double tempMax;
+    private final String weatherTitle;
+    private final String weatherDescription;
+    private final String weatherIcon;
+    private final double windSpeed;
+    private final double windDegree;
 
     public Weather(int unixDateTime, String calculateDateTime, double tempCurrent, double tempMin,
                    double tempMax, String weatherTitle, String weatherDescription, String weatherIcon,
@@ -34,7 +34,7 @@ public class Weather implements Parcelable {
         this.windDegree = windDegree;
     }
 
-    protected Weather(Parcel in) {
+    private Weather(Parcel in) {
         unixDateTime = in.readInt();
         calculateDateTime = in.readString();
         tempCurrent = in.readDouble();

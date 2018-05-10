@@ -18,7 +18,7 @@ public class WeatherIntentService extends IntentService {
 
     private static final String TAG = WeatherIntentService.class.getSimpleName();
 
-    ArrayList<Weather> mWeather;
+    private ArrayList<Weather> mWeather;
 
     public WeatherIntentService() {
         super("WeatherIntentService");

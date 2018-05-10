@@ -11,9 +11,9 @@ public class WeatherSharedPreferencesHelper {
     private static final String TAG = WeatherSharedPreferencesHelper.class.getSimpleName();
 
     /* sharedPreferences keys */
-    final public static String SHARED_PREF_LAT = "shared_pref_lat";
-    final public static String SHARED_PREF_LON = "shared_pref_lon";
-    final public static String SHARED_PREF_LAST_UPDATE = "shared_pref_last_update";
+    private final static String SHARED_PREF_LAT = "shared_pref_lat";
+    private final static String SHARED_PREF_LON = "shared_pref_lon";
+    private final static String SHARED_PREF_LAST_UPDATE = "shared_pref_last_update";
 
     /* Setting/Saving data to SharedPreferences */
     public static void setLatLonAndDate(Double lat, Double lon) {

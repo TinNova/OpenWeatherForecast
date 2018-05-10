@@ -10,7 +10,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class WeatherJsonUtils {
+class WeatherJsonUtils {
 
     private static final String TAG = WeatherJsonUtils.class.getSimpleName();
 

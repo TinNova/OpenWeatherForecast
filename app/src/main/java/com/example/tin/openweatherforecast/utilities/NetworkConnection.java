@@ -18,13 +18,13 @@ public class NetworkConnection {
 
     private static final String TAG = NetworkConnection.class.getSimpleName();
 
-    public ArrayList<Weather> mWeather = new ArrayList<>();
+    private ArrayList<Weather> mWeather = new ArrayList<>();
 
 
     private static NetworkConnection instance = null;
 
     // Required for Volley API
-    private RequestQueue mRequestQueue;
+    private final RequestQueue mRequestQueue;
 
     private NetworkConnection(Context context) {
         mRequestQueue = Volley.newRequestQueue(context.getApplicationContext());
@@ -54,7 +54,7 @@ public class NetworkConnection {
             mWeather.clear();
         }
 
-        // Handler for the JSON response when server returns ok
+        /* Handler for the JSON response when server returns ok */
         final com.android.volley.Response.Listener<String>
                 responseListener = new com.android.volley.Response.Listener<String>() {
 
@@ -65,15 +65,13 @@ public class NetworkConnection {
                 mWeather = WeatherJsonUtils.parseWeatherJson(response);
 
                 Log.d(TAG + ": ", "Response : " + response);
-                // Passing the response to the NetworkListener
-                //listener.getResult(response);
 
-                // Send mWeather ArrayList to MainActivity
+                /* Send mWeather ArrayList to MainActivity */
                 listener.getWeatherArrayList(mWeather);
             }
         };
 
-        // Handler for when the server returns an error response
+        /* Handler for when the server returns an error response */
         com.android.volley.Response.ErrorListener errorListener = new com.android.volley.Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
@@ -81,7 +79,7 @@ public class NetworkConnection {
             }
         };
 
-        // This is the body of the Request
+        /* This is the body of the Request */
         StringRequest request = new StringRequest(Request.Method.GET, url, responseListener, errorListener) {
         };
 
@@ -89,4 +87,3 @@ public class NetworkConnection {
         mRequestQueue.add(request);
     }
 }
-

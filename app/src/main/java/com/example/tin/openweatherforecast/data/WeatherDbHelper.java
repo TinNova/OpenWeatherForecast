@@ -4,7 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-public class WeatherDbHelper extends SQLiteOpenHelper {
+class WeatherDbHelper extends SQLiteOpenHelper {
 
     /* The name of the database as it will be saved on the users Android Device */
     private static final String DATABASE_NAME = "open_weather_forecast.db";
