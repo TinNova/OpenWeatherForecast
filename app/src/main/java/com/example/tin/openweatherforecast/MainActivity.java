@@ -205,7 +205,21 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             mAdapter = new WeatherAdapter(mWeather, getApplicationContext(), DEGREE_SYMBOL);
             mRecyclerView.setAdapter(mAdapter);
 
-            populateTodaysDate(mWeather, 1, LAT_LON_IRRELEVANT, LAT_LON_IRRELEVANT);
+            // If the connManager and networkInfo is NOT null, start the login() method
+            if (mConnectionManager != null)
+                mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
+            if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
+
+                /* if GPS is enabled */
+                if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+
+                    downloadResponseOrDisplaySqlData();
+                }
+
+            } else {
+
+                populateTodaysDate(mWeather, 1, LAT_LON_IRRELEVANT, LAT_LON_IRRELEVANT);
+            }
         }
 
         /* Button used to refresh the weather data */
@@ -213,7 +227,23 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             @Override
             public void onClick(View v) {
 
-                downloadResponseOrDisplaySqlData();
+                // If the connManager and networkInfo is NOT null, start the login() method
+                if (mConnectionManager != null)
+                    mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
+                if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
+
+                    /* if GPS is enabled */
+                    if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+
+                        downloadResponseOrDisplaySqlData();
+                    } else {
+
+                        Toast.makeText(MainActivity.this, getString(R.string.no_gps), Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+
+                    Toast.makeText(MainActivity.this, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -222,7 +252,23 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             @Override
             public void onClick(View v) {
 
-                downloadResponseOrDisplaySqlData();
+                // If the connManager and networkInfo is NOT null, start the login() method
+                if (mConnectionManager != null)
+                    mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
+                if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
+
+                    /* if GPS is enabled */
+                    if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+
+                        downloadResponseOrDisplaySqlData();
+                    } else {
+
+                        Toast.makeText(MainActivity.this, getString(R.string.no_gps), Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+
+                    Toast.makeText(MainActivity.this, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -534,19 +580,17 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         LATITUDE = getString(R.string.latitude);
         LONGITUDE = getString(R.string.longitude);
 
-        Log.d(TAG, "dataType: " + dataType);
-
         /*
          * if data came from SQL, display the lat/lon and update time that was saved in SharePref
          * at the same time
          */
         if (dataType == 1) {
             String[] sharedPrefLatLonArray = WeatherSharedPreferencesHelper.getLatLonAndDate();
-            String sharedPreflat = sharedPrefLatLonArray[0];
+            String sharedPrefLat = sharedPrefLatLonArray[0];
             String sharedPrefLon = sharedPrefLatLonArray[1];
             String sharedPrefLastUpdate = sharedPrefLatLonArray[2];
 
-            tvLocation.setText((LATITUDE + " " + sharedPreflat + ", " + LONGITUDE + " " + sharedPrefLon));
+            tvLocation.setText((LATITUDE + " " + sharedPrefLat + ", " + LONGITUDE + " " + sharedPrefLon));
             tvLastDataUpdated.setText(sharedPrefLastUpdate);
         } else {
 
@@ -696,6 +740,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public void onSaveInstanceState(Bundle outState) {
         // Saving mWeather to be reused should the device rotate
         outState.putParcelableArrayList(SAVED_INSTANT_STATE_KEY, mWeather);
+
         super.onSaveInstanceState(outState);
     }
 }
