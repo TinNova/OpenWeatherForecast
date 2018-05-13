@@ -398,8 +398,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     /* Logging the weather ArrayList to see if it's functioning */
                     Log.i(TAG, "ArrayList Weather: " + weather);
 
-                    /* dataType, SQL = 1, API = 2 */
-                    populateTodaysDate(weather, 2, lat, lon);
+                    //TODO: Save data directly to SQL. Then display data directly from SQL, Never display from API
+                    //TODO: 1. In Method That Parses API, Then Save All To SQLite Including WeatherIcon ID
+                    //TODO: 2. In Adapter When Populating Image, Insert One From The RES Folder
+                    //TODO: Experiment with the Room API, it could be good
+//                    /* dataType, SQL = 1, API = 2 */
+//                    populateTodaysDate(weather, 2, lat, lon);
 
                     /* Save Weather ContentValues to Bundle */
                     Bundle weatherDataBundle = IntentServiceUtils.saveWeatherDataToSql(weather);
