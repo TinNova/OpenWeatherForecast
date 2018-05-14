@@ -220,7 +220,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
             } else {
 
-                populateTodaysDate(mWeather, 1, LAT_LON_IRRELEVANT, LAT_LON_IRRELEVANT);
+                populateTodaysDate(mWeather);
             }
         }
 
@@ -413,7 +413,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     startService(saveSqlIntent);
 
                     /* dataType, SQL = 1, API = 2 */
-                    populateTodaysDate(weather, 1, lat, lon);
+                    populateTodaysDate(weather);
                 }
             });
 
@@ -495,7 +495,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 } else {
 
                     /* dataType, SQL = 1, API = 2 */
-                    populateTodaysDate(mWeather, 1, LAT_LON_IRRELEVANT, LAT_LON_IRRELEVANT);
+                    populateTodaysDate(mWeather);
                 }
 
                 /* Set int to 1 to indicate an instance of a Loader has been created */
@@ -520,7 +520,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
 
     /* Helper Class that populates today's feature date and passes weather ArrayList to WeatherAdapter */
-    private void populateTodaysDate(ArrayList<Weather> weather, int dataType, double lat, double lon) {
+    private void populateTodaysDate(ArrayList<Weather> weather) {
 
         WIND_INTRO = getString(R.string.wind_intro);
         WIND_UNIT = getString(R.string.wind_speed_unit);
@@ -530,27 +530,14 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         LONGITUDE = getString(R.string.longitude);
 
         /*
-         * if data came from SQL, display the lat/lon and update time that was saved in SharePref
-         * at the same time
+         * Get the Latitude, Longitude and time of Update from SharedPreferences
          */
-        if (dataType == 1) {
-            String[] sharedPrefLatLonArray = WeatherSharedPreferencesHelper.getLatLonAndDate();
-            String sharedPrefLat = sharedPrefLatLonArray[0];
-            String sharedPrefLon = sharedPrefLatLonArray[1];
-            String sharedPrefLastUpdate = sharedPrefLatLonArray[2];
-
-            tvLocation.setText((LATITUDE + " " + sharedPrefLat + ", " + LONGITUDE + " " + sharedPrefLon));
-            tvLastDataUpdated.setText(sharedPrefLastUpdate);
-        } else {
-
-            /* Rounding the lat/lon doubles to two decimal places */
-            double roundedLat = LocationUtils.round(lat, 2);
-            double roundedLon = LocationUtils.round(lon, 2);
-
-            tvLocation.setText((String.valueOf(LATITUDE + " " + roundedLat + ", " + LONGITUDE + " " + roundedLon)));
-
-            tvLastDataUpdated.setText(UPDATED + " " + DateUtils.getTodaysDateFormat02());
-        }
+        String[] sharedPrefLatLonArray = WeatherSharedPreferencesHelper.getLatLonAndDate();
+        String sharedPrefLat = sharedPrefLatLonArray[0];
+        String sharedPrefLon = sharedPrefLatLonArray[1];
+        String sharedPrefLastUpdate = sharedPrefLatLonArray[2];
+        tvLocation.setText((LATITUDE + " " + sharedPrefLat + ", " + LONGITUDE + " " + sharedPrefLon));
+        tvLastDataUpdated.setText(sharedPrefLastUpdate);
 
         /* Populating the current times weather */
         tvTodayDate.setText(weather.get(0).getCalculateDateTime());
@@ -603,7 +590,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
      */
     private void downloadResponseOrDisplaySqlData() {
 
-        /* If the connManager and networkInfo is NOT null, start the login() method */
+        /* If the connManager and networkInfo is NOT null */
         if (mConnectionManager != null)
             mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
         if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
