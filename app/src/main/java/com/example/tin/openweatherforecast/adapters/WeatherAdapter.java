@@ -60,7 +60,7 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHold
         viewHolder.tvDescription.setText(weather.getWeatherDescription());
         viewHolder.tvTemp.setText(String.valueOf(weather.getTempCurrent() + DEGREE_SYMBOL));
 
-        Picasso.with(context).load(weather.getWeatherIcon())
+        Picasso.with(context).load(weather.getWeatherId())
                 .into(viewHolder.ivIcon);
     }
 

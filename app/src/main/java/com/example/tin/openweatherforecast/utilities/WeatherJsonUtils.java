@@ -45,7 +45,7 @@ class WeatherJsonUtils {
     /* Weather Information */
     private static final String OWN_TITLE = "main";
     private static final String OWN_DESCRIPTION = "description";
-    private static final String OWN_ICON = "icon";
+    private static final String OWN_ID = "id";
 
     /* Wind Information */
     private static final String OWN_WIND_SPEED = "speed";
@@ -114,7 +114,7 @@ class WeatherJsonUtils {
 
                 String weatherTitle = weatherJsonObject.getString(OWN_TITLE);
                 String weatherDescription = weatherJsonObject.getString(OWN_DESCRIPTION);
-                String weatherIcon = weatherJsonObject.getString(OWN_ICON);
+                int weatherId = weatherJsonObject.getInt(OWN_ID);
 
                 /*
                  * Get the "wind" JsonObject from the forecastJsonObject
@@ -140,7 +140,7 @@ class WeatherJsonUtils {
                             tempMax,
                             weatherTitle,
                             weatherDescription,
-                            weatherIcon,
+                            weatherId,
                             windSpeed,
                             windDegree
                     );

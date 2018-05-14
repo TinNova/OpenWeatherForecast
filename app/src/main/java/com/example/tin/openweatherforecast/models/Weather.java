@@ -15,12 +15,12 @@ public class Weather implements Parcelable {
     private final double tempMax;
     private final String weatherTitle;
     private final String weatherDescription;
-    private final int weatherIcon;
+    private final int weatherId;
     private final double windSpeed;
     private final double windDegree;
 
     public Weather(int unixDateTime, String calculateDateTime, double tempCurrent, double tempMin,
-                   double tempMax, String weatherTitle, String weatherDescription, int weatherIcon,
+                   double tempMax, String weatherTitle, String weatherDescription, int weatherId,
                    double windSpeed, double windDegree) {
         this.unixDateTime = unixDateTime;
         this.calculateDateTime = calculateDateTime;
@@ -29,7 +29,7 @@ public class Weather implements Parcelable {
         this.tempMax = tempMax;
         this.weatherTitle = weatherTitle;
         this.weatherDescription = weatherDescription;
-        this.weatherIcon = weatherIcon;
+        this.weatherId = weatherId;
         this.windSpeed = windSpeed;
         this.windDegree = windDegree;
     }
@@ -42,7 +42,7 @@ public class Weather implements Parcelable {
         tempMax = in.readDouble();
         weatherTitle = in.readString();
         weatherDescription = in.readString();
-        weatherIcon = in.readInt();
+        weatherId = in.readInt();
         windSpeed = in.readDouble();
         windDegree = in.readDouble();
     }
@@ -74,7 +74,7 @@ public class Weather implements Parcelable {
         parcel.writeDouble(tempMax);
         parcel.writeString(weatherTitle);
         parcel.writeString(weatherDescription);
-        parcel.writeInt(weatherIcon);
+        parcel.writeInt(weatherId);
         parcel.writeDouble(windSpeed);
         parcel.writeDouble(windDegree);
     }
@@ -114,9 +114,9 @@ public class Weather implements Parcelable {
         return weatherDescription;
     }
 
-    public int getWeatherIcon() {
+    public int getWeatherId() {
 
-        return weatherIcon;
+        return weatherId;
     }
 
     public double getWindSpeed() {

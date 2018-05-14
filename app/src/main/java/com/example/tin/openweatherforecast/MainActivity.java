@@ -460,7 +460,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                          */
                         data.getString(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_WEATHER_DESC)),
                         data.getString(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_WEATHER_DESC)),
-                        data.getInt(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_ICON_ID)),
+                        data.getInt(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_WEATHER_ID)),
                         data.getDouble(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_WIND_SPEED)),
                         data.getDouble(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_WIND_DEGREE))
                 );
@@ -558,6 +558,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         tvTodayWindSpeed.setText((String.valueOf(WIND_INTRO + weather.get(0).getWindSpeed() + WIND_UNIT)));
         tvTodayWindDirection.setText((String.valueOf(weather.get(0).getWindDegree())));
 
+        int largeIconResourceId = getLargeArtResourceIdForWeatherCondition(weather.get(0).getWeatherId());
+
+        Picasso.with(MainActivity.this).load(largeIconResourceId)
+                .into(ivTodayIcon);
 
         mAdapter = new WeatherAdapter(weather, getApplicationContext(), DEGREE_SYMBOL);
         mRecyclerView.setAdapter(mAdapter);

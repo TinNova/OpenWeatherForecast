@@ -43,7 +43,7 @@ public class IntentServiceUtils {
             double tempMin = weather.get(i).getTempMin();
             double tempMax = weather.get(i).getTempMax();
             String weatherDescription = weather.get(i).getWeatherDescription();
-            int weatherIcon = weather.get(i).getWeatherIcon();
+            int weatherIcon = weather.get(i).getWeatherId();
             double windSpeed = weather.get(i).getWindSpeed();
             double windDegree = weather.get(i).getWindDegree();
 
@@ -55,7 +55,7 @@ public class IntentServiceUtils {
             weatherValues.put(WeatherContract.WeatherEntry.COLUMN_TEMP_MIN, tempMin);
             weatherValues.put(WeatherContract.WeatherEntry.COLUMN_TEMP_MAX, tempMax);
             weatherValues.put(WeatherContract.WeatherEntry.COLUMN_WEATHER_DESC, weatherDescription);
-            weatherValues.put(WeatherContract.WeatherEntry.COLUMN_ICON_ID, weatherIcon);
+            weatherValues.put(WeatherContract.WeatherEntry.COLUMN_WEATHER_ID, weatherIcon);
             weatherValues.put(WeatherContract.WeatherEntry.COLUMN_WIND_SPEED, windSpeed);
             weatherValues.put(WeatherContract.WeatherEntry.COLUMN_WIND_DEGREE, windDegree);
 
