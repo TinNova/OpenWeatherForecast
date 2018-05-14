@@ -9,11 +9,15 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.tin.openweatherforecast.MainActivity;
 import com.example.tin.openweatherforecast.R;
 import com.example.tin.openweatherforecast.models.Weather;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+
+import static com.example.tin.openweatherforecast.utilities.WeatherDisplayUtils.getLargeArtResourceIdForWeatherCondition;
+import static com.example.tin.openweatherforecast.utilities.WeatherDisplayUtils.getSmallArtResourceIdForWeatherCondition;
 
 public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHolder> {
 
@@ -60,7 +64,9 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHold
         viewHolder.tvDescription.setText(weather.getWeatherDescription());
         viewHolder.tvTemp.setText(String.valueOf(weather.getTempCurrent() + DEGREE_SYMBOL));
 
-        Picasso.with(context).load(weather.getWeatherId())
+        int smallIconResourceId = getSmallArtResourceIdForWeatherCondition(weather.getWeatherId());
+
+        Picasso.with(context).load(smallIconResourceId)
                 .into(viewHolder.ivIcon);
     }
 
