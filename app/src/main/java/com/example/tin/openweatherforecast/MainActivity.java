@@ -187,42 +187,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         /* Set the mRecyclerView to the layoutManager */
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
 
-        /* Initialising the mWeather ArrayList<> to avoid a null exception */
+        /* Initialising the mWeather ArrayList<>, required to use onInstanceSaved */
         mWeather = new ArrayList<>();
-
-        /* If There isn't a savedInstanceState, Download The Data And Build The RecyclerView */
-        if (savedInstanceState == null) {
-
-            /*
-             * This method either retrieves data from the OpenWeatherApi or from the SQL database
-             * based on whether or not the device has access to the internet and location services.
-             */
-            downloadResponseOrDisplaySqlData();
-        } else {
-
-            /* Retrieve the mWeather ArrayList from onSavedInstanceState */
-            mWeather = savedInstanceState.getParcelableArrayList(SAVED_INSTANT_STATE_KEY);
-
-            /* Pass the mWeather ArrayList to the adapter */
-            mAdapter = new WeatherAdapter(mWeather, getApplicationContext(), DEGREE_SYMBOL);
-            mRecyclerView.setAdapter(mAdapter);
-
-            /* If the connManager and networkInfo is NOT null, start the login() method */
-            if (mConnectionManager != null)
-                mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
-            if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
-
-                /* if GPS is enabled */
-                if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-
-                    downloadResponseOrDisplaySqlData();
-                }
-
-            } else {
-
-                populateTodaysDate(mWeather);
-            }
-        }
 
         /* Button used to refresh the weather data */
         btnRefreshData.setOnClickListener(new View.OnClickListener() {
@@ -273,6 +239,26 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 }
             }
         });
+
+        /* If There isn't a savedInstanceState, Download The Data And Build The RecyclerView */
+        if (savedInstanceState != null) {
+
+            /* Retrieve the mWeather ArrayList from onSavedInstanceState */
+            mWeather = savedInstanceState.getParcelableArrayList(SAVED_INSTANT_STATE_KEY);
+
+            /* Pass the mWeather ArrayList to the adapter */
+            mAdapter = new WeatherAdapter(mWeather, getApplicationContext(), DEGREE_SYMBOL);
+            mRecyclerView.setAdapter(mAdapter);
+
+            populateTodaysDate(mWeather);
+        } else {
+
+            /*
+             * This method either retrieves data from the OpenWeatherApi or from the SQL database
+             * based on whether or not the device has access to the internet and location services.
+             */
+            downloadResponseOrDisplaySqlData();
+        }
     }
 
     /* Requesting the latitude and longitude of the device */
@@ -557,6 +543,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         mAdapter.notifyDataSetChanged();
 
         showWeatherDataView();
+
+        /* Required to save data in onSaveInstantState */
+        mWeather = weather;
     }
 
     /*
@@ -675,9 +664,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
         /* Saving mWeather to be reused should the device rotate */
         outState.putParcelableArrayList(SAVED_INSTANT_STATE_KEY, mWeather);
 
-        super.onSaveInstanceState(outState);
     }
 }
