@@ -20,7 +20,6 @@ import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
@@ -399,7 +398,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     Log.i(TAG, "ArrayList Weather: " + weather);
 
                     //TODO: Save data directly to SQL. Then display data directly from SQL, Never display from API
-                    //TODO: 1. In Method That Parses API, Then Save All To SQLite Including WeatherIcon ID
+                    //TODO: 1. In Method That Parses API, Save All To SQLite Including WeatherIcon ID
                     //TODO: 2. In Adapter When Populating Image, Insert One From The RES Folder
                     //TODO: Experiment with the Room API, it could be good
 //                    /* dataType, SQL = 1, API = 2 */
