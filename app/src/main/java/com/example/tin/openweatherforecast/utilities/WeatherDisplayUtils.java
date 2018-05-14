@@ -1,5 +1,6 @@
 package com.example.tin.openweatherforecast.utilities;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.example.tin.openweatherforecast.R;
@@ -12,6 +13,26 @@ public class WeatherDisplayUtils {
 
     private static final String TAG = WeatherDisplayUtils.class.getSimpleName();
 
+    /*
+     * Formatting temperature to a whole number
+     *
+     * @param context     Android Context to access preferences and resources
+     * @param temperature Temperature in degrees Celsius (°C)
+     *
+     * @return Formatted temperature String in the following form:
+     * "21°"
+     */
+    public static String formatTemperature(Context context, double temperature) {
+
+        String roundedTemp = context.getString(R.string.format_temperature, temperature);
+
+        return roundedTemp + context.getString(R.string.degrees_symbol);
+    }
+
+//    public static String concatenateDegreeSymbol(Context context, String temperature) {
+//
+//        return temperature + context.getString(R.string.degrees_symbol);
+//    }
 
     /*
      * Helper method that provides the small icon resource that corresponds to the icon id return by the

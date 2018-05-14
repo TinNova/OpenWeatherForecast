@@ -42,7 +42,6 @@ import com.example.tin.openweatherforecast.data.WeatherContract;
 import com.example.tin.openweatherforecast.data.WeatherIntentService;
 import com.example.tin.openweatherforecast.utilities.DateUtils;
 import com.example.tin.openweatherforecast.utilities.IntentServiceUtils;
-import com.example.tin.openweatherforecast.utilities.LocationUtils;
 import com.example.tin.openweatherforecast.utilities.NetworkListener;
 import com.example.tin.openweatherforecast.utilities.NetworkConnection;
 import com.example.tin.openweatherforecast.utilities.NetworkUtils;
@@ -51,6 +50,7 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import static com.example.tin.openweatherforecast.utilities.WeatherDisplayUtils.formatTemperature;
 import static com.example.tin.openweatherforecast.utilities.WeatherDisplayUtils.getLargeArtResourceIdForWeatherCondition;
 
 
@@ -99,7 +99,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
      */
     private String WIND_INTRO;
     private String WIND_UNIT;
-    private String DEGREE_SYMBOL;
     private String UPDATED;
     private String LATITUDE;
     private String LONGITUDE;
@@ -160,9 +159,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         tvLocation = findViewById(R.id.tV_lastLocation);
         ivTodayIcon = findViewById(R.id.iV_todayIcon);
         tvLastDataUpdated = findViewById(R.id.tV_lastUpdate);
-
-        /* The celsius degree symbol */
-        DEGREE_SYMBOL = getString(R.string.degrees_symbol);
 
         /*
          * Creating The RecyclerView,
@@ -247,7 +243,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             mWeather = savedInstanceState.getParcelableArrayList(SAVED_INSTANT_STATE_KEY);
 
             /* Pass the mWeather ArrayList to the adapter */
-            mAdapter = new WeatherAdapter(mWeather, getApplicationContext(), DEGREE_SYMBOL);
+            mAdapter = new WeatherAdapter(mWeather, getApplicationContext());
             mRecyclerView.setAdapter(mAdapter);
 
             populateTodaysDate(mWeather);
@@ -382,13 +378,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             NetworkConnection.getInstance(this).getResponseFromHttpUrl(weatherRequestUrl, new NetworkListener() {
                 @Override
                 public void getWeatherArrayList(ArrayList<Weather> weather) {
-                    /* Logging the weather ArrayList to see if it's functioning */
-                    Log.i(TAG, "ArrayList Weather: " + weather);
-
-                    //TODO: Save data directly to SQL. Then display data directly from SQL, Never display from API
-                    //TODO: 1. In Method That Parses API, Save All To SQLite Including WeatherIcon ID
-                    //TODO: 2. In Adapter When Populating Image, Insert One From The RES Folder
-                    //TODO: Experiment with the Room API, it could be good
 
                     /* Save Weather ContentValues to Bundle */
                     Bundle weatherDataBundle = IntentServiceUtils.saveWeatherDataToSql(weather);
@@ -510,7 +499,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         WIND_INTRO = getString(R.string.wind_intro);
         WIND_UNIT = getString(R.string.wind_speed_unit);
-        DEGREE_SYMBOL = getString(R.string.degrees_symbol);
         UPDATED = getString(R.string.last_update);
         LATITUDE = getString(R.string.latitude);
         LONGITUDE = getString(R.string.longitude);
@@ -527,7 +515,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         /* Populating the current times weather */
         tvTodayDate.setText(weather.get(0).getCalculateDateTime());
-        tvTodayTemp.setText((String.valueOf(weather.get(0).getTempCurrent() + DEGREE_SYMBOL)));
+
+        /* Formatting the temperature, rounding it to an int and adding the celsius degree sign */
+        String formattedTemp = formatTemperature(this, weather.get(0).getTempCurrent());
+
+        tvTodayTemp.setText(formattedTemp);
         tvTodayDescription.setText(weather.get(0).getWeatherDescription());
         tvTodayWindSpeed.setText((String.valueOf(WIND_INTRO + weather.get(0).getWindSpeed() + WIND_UNIT)));
         tvTodayWindDirection.setText((String.valueOf(weather.get(0).getWindDegree())));
@@ -537,7 +529,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         Picasso.with(MainActivity.this).load(largeIconResourceId)
                 .into(ivTodayIcon);
 
-        mAdapter = new WeatherAdapter(weather, getApplicationContext(), DEGREE_SYMBOL);
+        mAdapter = new WeatherAdapter(weather, getApplicationContext());
         mRecyclerView.setAdapter(mAdapter);
 
         mAdapter.notifyDataSetChanged();
@@ -626,7 +618,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             getSupportLoaderManager().restartLoader(WEATHER_LOADER_ID, null, MainActivity.this);
         }
 
-            /* Start loading the SQL data */
+        /* Start loading the SQL data */
         getSupportLoaderManager().initLoader(WEATHER_LOADER_ID, null, MainActivity.this);
     }
 

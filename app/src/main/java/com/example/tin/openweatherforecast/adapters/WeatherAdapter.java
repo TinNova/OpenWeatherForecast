@@ -16,6 +16,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import static com.example.tin.openweatherforecast.utilities.WeatherDisplayUtils.formatTemperature;
 import static com.example.tin.openweatherforecast.utilities.WeatherDisplayUtils.getLargeArtResourceIdForWeatherCondition;
 import static com.example.tin.openweatherforecast.utilities.WeatherDisplayUtils.getSmallArtResourceIdForWeatherCondition;
 
@@ -23,12 +24,10 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHold
 
     private final List<Weather> mWeather;
     private final Context context;
-    private final String DEGREE_SYMBOL;
 
-    public WeatherAdapter(List<Weather> mWeather, Context context, String degree) {
+    public WeatherAdapter(List<Weather> mWeather, Context context) {
         this.mWeather = mWeather;
         this.context = context;
-        this.DEGREE_SYMBOL = degree;
     }
 
     /*
@@ -62,7 +61,11 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHold
 
         viewHolder.tvDate.setText(weather.getCalculateDateTime());
         viewHolder.tvDescription.setText(weather.getWeatherDescription());
-        viewHolder.tvTemp.setText(String.valueOf(weather.getTempCurrent() + DEGREE_SYMBOL));
+
+        /* Formatting the temperature, rounding it to an int and adding the celsius degree sign */
+        String formattedTemp = formatTemperature(context, weather.getTempCurrent());
+
+        viewHolder.tvTemp.setText(formattedTemp);
 
         int smallIconResourceId = getSmallArtResourceIdForWeatherCondition(weather.getWeatherId());
 
