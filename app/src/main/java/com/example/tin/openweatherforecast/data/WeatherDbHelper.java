@@ -8,7 +8,7 @@ class WeatherDbHelper extends SQLiteOpenHelper {
 
     /* The name of the database as it will be saved on the users Android Device */
     private static final String DATABASE_NAME = "open_weather_forecast.db";
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 10;
 
     /* Constructor that takes a context and calls the parent constructor */
     public WeatherDbHelper (Context context) {
@@ -26,7 +26,7 @@ class WeatherDbHelper extends SQLiteOpenHelper {
                 WeatherContract.WeatherEntry.COLUMN_TEMP_MIN + " REAL NOT NULL, " +
                 WeatherContract.WeatherEntry.COLUMN_TEMP_MAX + " REAL NOT NULL, " +
                 WeatherContract.WeatherEntry.COLUMN_WEATHER_DESC + " TEXT NOT NULL, " +
-                WeatherContract.WeatherEntry.COLUMN_ICON_ID + " TEXT NOT NULL, " +
+                WeatherContract.WeatherEntry.COLUMN_ICON_ID + " INTEGER NOT NULL, " +
                 WeatherContract.WeatherEntry.COLUMN_WIND_SPEED + " REAL NOT NULL, " +
                 WeatherContract.WeatherEntry.COLUMN_WIND_DEGREE + " REAL NOT NULL" +
                 "); ";

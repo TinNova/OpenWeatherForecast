@@ -15,12 +15,12 @@ public class Weather implements Parcelable {
     private final double tempMax;
     private final String weatherTitle;
     private final String weatherDescription;
-    private final String weatherIcon;
+    private final int weatherIcon;
     private final double windSpeed;
     private final double windDegree;
 
     public Weather(int unixDateTime, String calculateDateTime, double tempCurrent, double tempMin,
-                   double tempMax, String weatherTitle, String weatherDescription, String weatherIcon,
+                   double tempMax, String weatherTitle, String weatherDescription, int weatherIcon,
                    double windSpeed, double windDegree) {
         this.unixDateTime = unixDateTime;
         this.calculateDateTime = calculateDateTime;
@@ -42,7 +42,7 @@ public class Weather implements Parcelable {
         tempMax = in.readDouble();
         weatherTitle = in.readString();
         weatherDescription = in.readString();
-        weatherIcon = in.readString();
+        weatherIcon = in.readInt();
         windSpeed = in.readDouble();
         windDegree = in.readDouble();
     }
@@ -74,7 +74,7 @@ public class Weather implements Parcelable {
         parcel.writeDouble(tempMax);
         parcel.writeString(weatherTitle);
         parcel.writeString(weatherDescription);
-        parcel.writeString(weatherIcon);
+        parcel.writeInt(weatherIcon);
         parcel.writeDouble(windSpeed);
         parcel.writeDouble(windDegree);
     }
@@ -114,9 +114,9 @@ public class Weather implements Parcelable {
         return weatherDescription;
     }
 
-    public String getWeatherIcon() {
+    public int getWeatherIcon() {
 
-        return NetworkUtils.BASE_IMAGE_URL + weatherIcon + NetworkUtils.END_IMAGE_URL;
+        return weatherIcon;
     }
 
     public double getWindSpeed() {

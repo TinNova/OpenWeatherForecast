@@ -8,6 +8,7 @@ import com.example.tin.openweatherforecast.models.Weather;
 import com.example.tin.openweatherforecast.data.WeatherContract;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static com.example.tin.openweatherforecast.MainActivity.SQL_WEATHER_DATA;
 
@@ -42,7 +43,7 @@ public class IntentServiceUtils {
             double tempMin = weather.get(i).getTempMin();
             double tempMax = weather.get(i).getTempMax();
             String weatherDescription = weather.get(i).getWeatherDescription();
-            String weatherIcon = weather.get(i).getWeatherIcon();
+            int weatherIcon = weather.get(i).getWeatherIcon();
             double windSpeed = weather.get(i).getWindSpeed();
             double windDegree = weather.get(i).getWindDegree();
 
@@ -61,7 +62,7 @@ public class IntentServiceUtils {
             weatherContentValues[i] = weatherValues;
         }
 
-        Log.d(TAG, "weatherContentValues" + weatherContentValues);
+        Log.d(TAG, "weatherContentValues" + Arrays.toString(weatherContentValues));
 
         return weatherContentValues;
     }
