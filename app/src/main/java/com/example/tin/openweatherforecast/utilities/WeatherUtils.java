@@ -9,9 +9,9 @@ import com.example.tin.openweatherforecast.R;
  * Contains utilities for:
  * - Passing the correct weather Icon image
  */
-public class WeatherDisplayUtils {
+public class WeatherUtils {
 
-    private static final String TAG = WeatherDisplayUtils.class.getSimpleName();
+    private static final String TAG = WeatherUtils.class.getSimpleName();
 
     /*
      * Formatting temperature to a whole number
@@ -29,10 +29,14 @@ public class WeatherDisplayUtils {
         return roundedTemp + context.getString(R.string.degrees_symbol);
     }
 
-//    public static String concatenateDegreeSymbol(Context context, String temperature) {
-//
-//        return temperature + context.getString(R.string.degrees_symbol);
-//    }
+    public static String formatWindSpeed(Context context, double windSpeed) {
+
+        String roundWindSpeed = context.getString(R.string.format_temperature, windSpeed);
+
+        return context.getString(R.string.wind_intro) + " " + roundWindSpeed
+                + context.getString(R.string.wind_speed_unit);
+    }
+
 
     /*
      * Helper method that provides the small icon resource that corresponds to the icon id return by the
