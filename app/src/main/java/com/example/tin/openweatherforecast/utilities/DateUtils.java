@@ -1,5 +1,9 @@
 package com.example.tin.openweatherforecast.utilities;
 
+import android.content.Context;
+
+import com.example.tin.openweatherforecast.R;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -49,5 +53,12 @@ public class DateUtils {
         cal.add(Calendar.DATE, days);
 
         return cal.getTime();
+    }
+
+    public static String formatLastUpdateTime(Context context, String lastUpdateTime) {
+
+        return context.getString(R.string.last_update) + " " + lastUpdateTime;
+
+
     }
 }

@@ -45,12 +45,16 @@ import com.example.tin.openweatherforecast.utilities.IntentServiceUtils;
 import com.example.tin.openweatherforecast.utilities.NetworkListener;
 import com.example.tin.openweatherforecast.utilities.NetworkConnection;
 import com.example.tin.openweatherforecast.utilities.NetworkUtils;
+import com.example.tin.openweatherforecast.utilities.WeatherUtils;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Objects;
 
+import static com.example.tin.openweatherforecast.utilities.DateUtils.formatLastUpdateTime;
+import static com.example.tin.openweatherforecast.utilities.LocationUtils.formatLatLon;
 import static com.example.tin.openweatherforecast.utilities.WeatherUtils.formatTemperature;
+import static com.example.tin.openweatherforecast.utilities.WeatherUtils.formatWindDirection;
 import static com.example.tin.openweatherforecast.utilities.WeatherUtils.formatWindSpeed;
 import static com.example.tin.openweatherforecast.utilities.WeatherUtils.getLargeArtResourceIdForWeatherCondition;
 
@@ -60,8 +64,7 @@ import static com.example.tin.openweatherforecast.utilities.WeatherUtils.getLarg
  *
  */
 //TODO: Format all UI elements correctly (within the WeatherUtils class)
-//TODO:  - The current lat, lon and update time, wind speed which can be moved to WeatherUtils
-//TODO:  - The time, wind Direction
+//TODO: - The time!
 
 //TODO: Create a JobDispatcher and update weather when user is online every three hours
 //TODO: Add notifications, notify of new weather data
@@ -107,13 +110,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private LocationManager locationManager;
     private LocationListener locationListener;
     private Location location;
-
-    /*
-     * These strings are used to make the UI more attractive and readable for users.
-     */
-    private String UPDATED;
-    private String LATITUDE;
-    private String LONGITUDE;
 
     /*
      * Needed to populate the Adapter and the RecyclerView
@@ -509,34 +505,21 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     /* Helper Class that populates today's feature date and passes weather ArrayList to WeatherAdapter */
     private void populateTodaysDate(ArrayList<Weather> weather) {
 
-        UPDATED = getString(R.string.last_update);
-        LATITUDE = getString(R.string.latitude);
-        LONGITUDE = getString(R.string.longitude);
-
         /*
-         * Get the Latitude, Longitude and time of Update from SharedPreferences
+         * SharedPreferences contains the last known Latitude, Longitude and time of Update
          */
         String[] sharedPrefLatLonArray = WeatherSharedPreferencesHelper.getLatLonAndDate();
-        String sharedPrefLat = sharedPrefLatLonArray[0];
-        String sharedPrefLon = sharedPrefLatLonArray[1];
-        String sharedPrefLastUpdate = sharedPrefLatLonArray[2];
-        tvLocation.setText((LATITUDE + " " + sharedPrefLat + ", " + LONGITUDE + " " + sharedPrefLon));
-        tvLastDataUpdated.setText(sharedPrefLastUpdate);
 
-        /* Populating the current times weather */
+        /*
+         * Populating the TextViews with data. Many of the data sets are formatted before entry
+         */
         tvTodayDate.setText(weather.get(0).getCalculateDateTime());
-
-        /* Formatting the temperature, rounding it to an int and adding the celsius degree sign */
-        String formattedTemp = formatTemperature(this, weather.get(0).getTempCurrent());
-        tvTodayTemp.setText(formattedTemp);
-
         tvTodayDescription.setText(weather.get(0).getWeatherDescription());
-
-        /* Formatting the wind speed */
-        String formattedWindSpeed = formatWindSpeed(this, weather.get(0).getWindSpeed());
-        tvTodayWindSpeed.setText(formattedWindSpeed);
-
-        tvTodayWindDirection.setText((String.valueOf(weather.get(0).getWindDegree())));
+        tvLocation.setText(formatLatLon(this, sharedPrefLatLonArray));
+        tvLastDataUpdated.setText(formatLastUpdateTime(this, sharedPrefLatLonArray[2]));
+        tvTodayTemp.setText(formatTemperature(this, weather.get(0).getTempCurrent()));
+        tvTodayWindSpeed.setText(formatWindSpeed(this, weather.get(0).getWindSpeed()));
+        tvTodayWindDirection.setText(formatWindDirection(weather.get(0).getWindDegree()));
 
         int largeIconResourceId = getLargeArtResourceIdForWeatherCondition(weather.get(0).getWeatherId());
 

@@ -37,6 +37,42 @@ public class WeatherUtils {
                 + context.getString(R.string.wind_speed_unit);
     }
 
+    /**
+     * This method uses the wind direction in degrees to determine compass direction as a
+     * String. (eg NW) The method will return the wind String in the following form: "2 km/h SW"
+
+     * @param degrees   Degrees as measured on a compass, NOT temperature degrees!
+     *                  See https://www.mathsisfun.com/geometry/degrees.html
+     *
+     * @return Wind String in the following form: "SW"
+     */
+    public static String formatWindDirection(double degrees) {
+
+        /*
+         * You know what's fun? Writing really long if/else statements with tons of possible
+         * conditions. Seriously, try it!
+         */
+        String direction = "Unknown";
+        if (degrees >= 337.5 || degrees < 22.5) {
+            direction = "N";
+        } else if (degrees >= 22.5 && degrees < 67.5) {
+            direction = "NE";
+        } else if (degrees >= 67.5 && degrees < 112.5) {
+            direction = "E";
+        } else if (degrees >= 112.5 && degrees < 157.5) {
+            direction = "SE";
+        } else if (degrees >= 157.5 && degrees < 202.5) {
+            direction = "S";
+        } else if (degrees >= 202.5 && degrees < 247.5) {
+            direction = "SW";
+        } else if (degrees >= 247.5 && degrees < 292.5) {
+            direction = "W";
+        } else if (degrees >= 292.5 && degrees < 337.5) {
+            direction = "NW";
+        }
+
+        return direction;
+    }
 
     /*
      * Helper method that provides the small icon resource that corresponds to the icon id return by the
