@@ -45,7 +45,6 @@ import com.example.tin.openweatherforecast.utilities.IntentServiceUtils;
 import com.example.tin.openweatherforecast.utilities.NetworkListener;
 import com.example.tin.openweatherforecast.utilities.NetworkConnection;
 import com.example.tin.openweatherforecast.utilities.NetworkUtils;
-import com.example.tin.openweatherforecast.utilities.WeatherUtils;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -59,14 +58,6 @@ import static com.example.tin.openweatherforecast.utilities.WeatherUtils.formatW
 import static com.example.tin.openweatherforecast.utilities.WeatherUtils.formatWindSpeed;
 import static com.example.tin.openweatherforecast.utilities.WeatherUtils.getLargeArtResourceIdForWeatherCondition;
 
-/**
- *
- *
- *
- */
-//TODO: Format all UI elements correctly (within the WeatherUtils class)
-//TODO: - Save the time in GMT or UTC into the database as it should be done!
-//TODO: - See WeatherUtils line: 40 as an example of great comments, add that to the rest of the Utilities Methods!
 
 //TODO: Create a JobDispatcher and update weather when user is online every three hours
 //TODO: Add notifications, notify of new weather data
@@ -460,7 +451,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             }
             /* The last time SQL was updated and the current time in Unix */
             int unixTimeDate = mWeather.get(0).getUnixDateTime();
-            int dateNowUnix = DateUtils.getTodaysDateInUnix();
+            long dateNowUnix = DateUtils.getTodaysDateInUnix();
 
             /* If the last update was more than 24hrs ago */
             if (dateNowUnix - unixTimeDate >= 1440 * 60 * 1000) {

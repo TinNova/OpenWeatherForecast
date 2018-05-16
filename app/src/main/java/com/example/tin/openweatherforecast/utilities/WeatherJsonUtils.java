@@ -14,20 +14,12 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.example.tin.openweatherforecast.MainActivity;
 import com.example.tin.openweatherforecast.models.Weather;
-import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 class WeatherJsonUtils {
 
@@ -76,10 +68,6 @@ class WeatherJsonUtils {
             if (openWeatherJsonObject.getInt(OWM_MESSAGE_CODE) != 200) {
                 //TODO: Handle this case gracefully
             }
-
-            /* Getting today's date in Human Readable Format to help build weather data array */
-//            String todaysDate = DateUtils.getTodaysDateFormat01();
-//            Log.d(TAG, "Today's Date: " + todaysDate);
 
             /* Define the "list" JsonArray as a JSONArray */
             JSONArray listJsonArray = openWeatherJsonObject.getJSONArray(OWN_JSON_LIST);
@@ -149,12 +137,9 @@ class WeatherJsonUtils {
                     Log.d(TAG, "Weather List: " + weather);
                 }
             }
-
-
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
         return mWeather;
     }
 }

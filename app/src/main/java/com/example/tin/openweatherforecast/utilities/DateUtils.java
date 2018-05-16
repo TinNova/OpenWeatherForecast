@@ -8,6 +8,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 public class DateUtils {
 
@@ -38,13 +40,34 @@ public class DateUtils {
     }
 
     /**
+     * Gets the current date and time
+     *
+     * @return String in the form of "2014-07-23"
+     */
+    public static String getTodaysDateFormat03() {
+        DateFormat df = new SimpleDateFormat("YYY-MM-dd");
+        String date = df.format(Calendar.getInstance().getTime());
+
+        return date;
+    }
+
+    public static Date addDays(Date date, int days) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        /* Inserting a minus number will decrement the date */
+        cal.add(Calendar.DATE, days);
+
+        return cal.getTime();
+    }
+
+    /**
      * Gets the current time in Unix format
      *
      * @return int of the current time in Unix format
      */
-    public static int getTodaysDateInUnix() {
+    public static long getTodaysDateInUnix() {
         Date date = Calendar.getInstance().getTime();
-        int unix = (int) date.getTime();
+        long unix = (long) date.getTime();
 
         return unix;
     }
@@ -56,33 +79,22 @@ public class DateUtils {
      * @return String in the form of "Wed, 12, Jan, 13:00"
      */
     public static String convertUnixDateToHumanReadable(int unixDate) {
-        int unixInMilliseconds = (unixDate) * 1000;// its need to be in milisecond
+        long unixInMilliseconds = (unixDate) * 1000;// its need to be in milisecond
         Date dateFormat = new java.util.Date(unixInMilliseconds);
-        String humanReadableDateTime = new SimpleDateFormat("EEE, d MMM, HH:mm").format(dateFormat);
+        String humanReadableDateTime = new SimpleDateFormat("EEE, d MMM").format(dateFormat);
 
         return humanReadableDateTime;
     }
 
     /**
-     * ??
+     * Formating the time for the refresh button
      *
-     * @param date
-     * @param days
-     * @return
+     * @param context        Android Context to access preferences and resources
+     * @param lastUpdateTime String of the last time the data was updated
+     * @return String in the format of "Updated 16/05 21:00"
      */
-    public static Date addDays(Date date, int days) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        /* Inserting a minus number will decrement the date */
-        cal.add(Calendar.DATE, days);
-
-        return cal.getTime();
-    }
-
     public static String formatLastUpdateTime(Context context, String lastUpdateTime) {
 
         return context.getString(R.string.last_update) + " " + lastUpdateTime;
-
-
     }
 }
