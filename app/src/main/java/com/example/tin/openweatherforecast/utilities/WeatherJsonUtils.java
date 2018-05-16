@@ -78,8 +78,8 @@ class WeatherJsonUtils {
             }
 
             /* Getting today's date in Human Readable Format to help build weather data array */
-            String todaysDate = DateUtils.getTodaysDateFormat01();
-            Log.d(TAG, "Today's Date: " + todaysDate);
+//            String todaysDate = DateUtils.getTodaysDateFormat01();
+//            Log.d(TAG, "Today's Date: " + todaysDate);
 
             /* Define the "list" JsonArray as a JSONArray */
             JSONArray listJsonArray = openWeatherJsonObject.getJSONArray(OWN_JSON_LIST);

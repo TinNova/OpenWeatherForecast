@@ -15,6 +15,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import static com.example.tin.openweatherforecast.utilities.DateUtils.convertUnixDateToHumanReadable;
 import static com.example.tin.openweatherforecast.utilities.WeatherUtils.formatTemperature;
 import static com.example.tin.openweatherforecast.utilities.WeatherUtils.getSmallArtResourceIdForWeatherCondition;
 
@@ -57,17 +58,11 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHold
 
         Weather weather = mWeather.get(position);
 
-        viewHolder.tvDate.setText(weather.getCalculateDateTime());
+        viewHolder.tvDate.setText(convertUnixDateToHumanReadable(weather.getUnixDateTime()));
         viewHolder.tvDescription.setText(weather.getWeatherDescription());
+        viewHolder.tvTemp.setText(formatTemperature(context, weather.getTempCurrent()));
 
-        /* Formatting the temperature, rounding it to an int and adding the celsius degree sign */
-        String formattedTemp = formatTemperature(context, weather.getTempCurrent());
-
-        viewHolder.tvTemp.setText(formattedTemp);
-
-        int smallIconResourceId = getSmallArtResourceIdForWeatherCondition(weather.getWeatherId());
-
-        Picasso.with(context).load(smallIconResourceId)
+        Picasso.with(context).load(getSmallArtResourceIdForWeatherCondition(weather.getWeatherId()))
                 .into(viewHolder.ivIcon);
     }
 

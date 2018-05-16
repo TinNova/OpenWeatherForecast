@@ -51,6 +51,7 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import static com.example.tin.openweatherforecast.utilities.DateUtils.convertUnixDateToHumanReadable;
 import static com.example.tin.openweatherforecast.utilities.DateUtils.formatLastUpdateTime;
 import static com.example.tin.openweatherforecast.utilities.LocationUtils.formatLatLon;
 import static com.example.tin.openweatherforecast.utilities.WeatherUtils.formatTemperature;
@@ -64,7 +65,9 @@ import static com.example.tin.openweatherforecast.utilities.WeatherUtils.getLarg
  *
  */
 //TODO: Format all UI elements correctly (within the WeatherUtils class)
-//TODO: - The time!
+//TODO: - Reformat The time!
+//TODO: - Save the time in GMT or UTC into the database as it should be done!
+//TODO: - See WeatherUtils line: 40 as an example of great comments, add that to the rest of the Utilities Methods!
 
 //TODO: Create a JobDispatcher and update weather when user is online every three hours
 //TODO: Add notifications, notify of new weather data
@@ -513,7 +516,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         /*
          * Populating the TextViews with data. Many of the data sets are formatted before entry
          */
-        tvTodayDate.setText(weather.get(0).getCalculateDateTime());
+        tvTodayDate.setText(convertUnixDateToHumanReadable(weather.get(0).getUnixDateTime()));
         tvTodayDescription.setText(weather.get(0).getWeatherDescription());
         tvLocation.setText(formatLatLon(this, sharedPrefLatLonArray));
         tvLastDataUpdated.setText(formatLastUpdateTime(this, sharedPrefLatLonArray[2]));
@@ -521,9 +524,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         tvTodayWindSpeed.setText(formatWindSpeed(this, weather.get(0).getWindSpeed()));
         tvTodayWindDirection.setText(formatWindDirection(weather.get(0).getWindDegree()));
 
-        int largeIconResourceId = getLargeArtResourceIdForWeatherCondition(weather.get(0).getWeatherId());
-
-        Picasso.with(MainActivity.this).load(largeIconResourceId)
+        Picasso.with(MainActivity.this)
+                .load(getLargeArtResourceIdForWeatherCondition(weather.get(0).getWeatherId()))
                 .into(ivTodayIcon);
 
         mAdapter = new WeatherAdapter(weather, getApplicationContext());
