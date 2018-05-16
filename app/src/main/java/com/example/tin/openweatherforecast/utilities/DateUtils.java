@@ -13,7 +13,11 @@ public class DateUtils {
 
     private static final String TAG = DateUtils.class.getSimpleName();
 
-    /* Gets this moments current DateTime in a human-readable format */
+    /**
+     * Get the current date and time
+     *
+     * @return String in the form of "Wed, 12, Jan, 13:00"
+     */
     public static String getTodaysDateFormat01() {
         DateFormat df = new SimpleDateFormat("EEE, d MMM, HH:mm");
         String date = df.format(Calendar.getInstance().getTime());
@@ -21,7 +25,11 @@ public class DateUtils {
         return date;
     }
 
-    /* Gets this moments current DateTime in a human-readable format */
+    /**
+     * Gets the current date and time
+     *
+     * @return String in the form of "12/01 13:00"
+     */
     public static String getTodaysDateFormat02() {
         DateFormat df = new SimpleDateFormat("dd/MM HH:mm");
         String date = df.format(Calendar.getInstance().getTime());
@@ -29,6 +37,11 @@ public class DateUtils {
         return date;
     }
 
+    /**
+     * Gets the current time in Unix format
+     *
+     * @return int of the current time in Unix format
+     */
     public static int getTodaysDateInUnix() {
         Date date = Calendar.getInstance().getTime();
         int unix = (int) date.getTime();
@@ -36,7 +49,12 @@ public class DateUtils {
         return unix;
     }
 
-    /* Converts Unix DateTime to a human readable format */
+    /**
+     * Converts a unix time format to this format "Wed, 12, Jan, 13:00"
+     *
+     * @param unixDate The date and time in Unix format
+     * @return String in the form of "Wed, 12, Jan, 13:00"
+     */
     public static String convertUnixDateToHumanReadable(int unixDate) {
         int unixInMilliseconds = (unixDate) * 1000;// its need to be in milisecond
         Date dateFormat = new java.util.Date(unixInMilliseconds);
@@ -45,7 +63,13 @@ public class DateUtils {
         return humanReadableDateTime;
     }
 
-    /* Code that increments or decrements a DateTime */
+    /**
+     * ??
+     *
+     * @param date
+     * @param days
+     * @return
+     */
     public static Date addDays(Date date, int days) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);

@@ -65,7 +65,6 @@ import static com.example.tin.openweatherforecast.utilities.WeatherUtils.getLarg
  *
  */
 //TODO: Format all UI elements correctly (within the WeatherUtils class)
-//TODO: - Reformat The time!
 //TODO: - Save the time in GMT or UTC into the database as it should be done!
 //TODO: - See WeatherUtils line: 40 as an example of great comments, add that to the rest of the Utilities Methods!
 

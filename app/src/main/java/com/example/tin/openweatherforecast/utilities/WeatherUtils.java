@@ -5,22 +5,16 @@ import android.util.Log;
 
 import com.example.tin.openweatherforecast.R;
 
-/*
- * Contains utilities for:
- * - Passing the correct weather Icon image
- */
 public class WeatherUtils {
 
     private static final String TAG = WeatherUtils.class.getSimpleName();
 
-    /*
+    /**
      * Formatting temperature to a whole number
      *
      * @param context     Android Context to access preferences and resources
      * @param temperature Temperature in degrees Celsius (°C)
-     *
-     * @return Formatted temperature String in the following form:
-     * "21°"
+     * @return Formatted temperature String in the following form: "21°C"
      */
     public static String formatTemperature(Context context, double temperature) {
 
@@ -29,6 +23,13 @@ public class WeatherUtils {
         return roundedTemp + context.getString(R.string.degrees_symbol);
     }
 
+    /**
+     * Formatting the wind speed to display a title and measurement
+     *
+     * @param context   Android Context to access preferences and resources
+     * @param windSpeed The wind speed in Km/h
+     * @return Formatted wind speed String in the following form: "Wind: 10km/h"
+     */
     public static String formatWindSpeed(Context context, double windSpeed) {
 
         String roundWindSpeed = context.getString(R.string.format_temperature, windSpeed);
@@ -38,12 +39,11 @@ public class WeatherUtils {
     }
 
     /**
-     * This method uses the wind direction in degrees to determine compass direction as a
-     * String. (eg NW) The method will return the wind String in the following form: "2 km/h SW"
-
-     * @param degrees   Degrees as measured on a compass, NOT temperature degrees!
-     *                  See https://www.mathsisfun.com/geometry/degrees.html
+     * This method uses the wind direction in degrees to determine the compass direction as a
+     * String. (eg NW) The method will return the wind String in the following form: "SW"
      *
+     * @param degrees Degrees as measured on a compass, NOT temperature degrees!
+     *                See https://www.mathsisfun.com/geometry/degrees.html
      * @return Wind String in the following form: "SW"
      */
     public static String formatWindDirection(double degrees) {
@@ -74,12 +74,12 @@ public class WeatherUtils {
         return direction;
     }
 
-    /*
+    /**
      * Helper method that provides the small icon resource that corresponds to the icon id return by the
      * OpenWeatherMap API.
-     * 
+     *
      * @param weatherIconId from OpenWeatherMap API response
-     *                  See http://openweathermap.org/weather-conditions for a list of all IDs
+     *                      See http://openweathermap.org/weather-conditions for a list of all IDs
      * @return resource id for the corresponding icon. -1 if no relation is found.
      */
     public static int getSmallArtResourceIdForWeatherCondition(int weatherIconId) {
@@ -121,12 +121,12 @@ public class WeatherUtils {
         return R.drawable.ic_storm;
     }
 
-    /*
+    /**
      * Helper method that provides the large icon resource that corresponds to the icon id return by the
      * OpenWeatherMap API.
-     * 
+     *
      * @param weatherIconId from OpenWeatherMap API response
-     *                  See http://openweathermap.org/weather-conditions for a list of all IDs
+     *                      See http://openweathermap.org/weather-conditions for a list of all IDs
      * @return resource id for the corresponding icon. -1 if no relation is found.
      */
     public static int getLargeArtResourceIdForWeatherCondition(int weatherIconId) {
