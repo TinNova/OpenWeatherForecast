@@ -67,6 +67,8 @@ import static com.example.tin.openweatherforecast.utilities.WeatherUtils.getLarg
 
 //TODO: Get the high and low of each day instead of only display the Midday Temperature
 
+//TODO: Delete the data from SQL if data is more than 24hours old, try adding the date in Unix into shared preferences the moment JSON is passed to the MainActivity?
+
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = MainActivity.class.getSimpleName();
