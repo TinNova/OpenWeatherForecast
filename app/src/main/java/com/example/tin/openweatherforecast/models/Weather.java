@@ -8,7 +8,7 @@ import com.example.tin.openweatherforecast.utilities.NetworkUtils;
 
 public class Weather implements Parcelable {
 
-    private final int unixDateTime;
+    private final long unixDateTime;
     private final String calculateDateTime;
     private final double tempCurrent;
     private final double tempMin;
@@ -19,7 +19,7 @@ public class Weather implements Parcelable {
     private final double windSpeed;
     private final double windDegree;
 
-    public Weather(int unixDateTime, String calculateDateTime, double tempCurrent, double tempMin,
+    public Weather(long unixDateTime, String calculateDateTime, double tempCurrent, double tempMin,
                    double tempMax, String weatherTitle, String weatherDescription, int weatherId,
                    double windSpeed, double windDegree) {
         this.unixDateTime = unixDateTime;
@@ -35,7 +35,7 @@ public class Weather implements Parcelable {
     }
 
     private Weather(Parcel in) {
-        unixDateTime = in.readInt();
+        unixDateTime = in.readLong();
         calculateDateTime = in.readString();
         tempCurrent = in.readDouble();
         tempMin = in.readDouble();
@@ -67,7 +67,7 @@ public class Weather implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeInt(unixDateTime);
+        parcel.writeLong(unixDateTime);
         parcel.writeString(calculateDateTime);
         parcel.writeDouble(tempCurrent);
         parcel.writeDouble(tempMin);
@@ -79,7 +79,7 @@ public class Weather implements Parcelable {
         parcel.writeDouble(windDegree);
     }
 
-    public int getUnixDateTime() {
+    public long getUnixDateTime() {
 
         return unixDateTime;
     }

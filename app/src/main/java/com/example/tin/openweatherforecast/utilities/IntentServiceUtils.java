@@ -37,7 +37,7 @@ public class IntentServiceUtils {
         /* Using a for loop to cycle through each JsonObject within the listJsonArray */
         for (int i = 0; i < weather.size(); i++) {
 
-            int unixDateTime = weather.get(i).getUnixDateTime();
+            long unixDateTime = weather.get(i).getUnixDateTime();
             String calculateDateTime = weather.get(i).getCalculateDateTime();
             double tempCurrent = weather.get(i).getTempCurrent();
             double tempMin = weather.get(i).getTempMin();

@@ -1,18 +1,7 @@
 package com.example.tin.openweatherforecast.utilities;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.Log;
-import android.view.View;
-import android.widget.ImageView;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.example.tin.openweatherforecast.MainActivity;
 import com.example.tin.openweatherforecast.models.Weather;
 
 import org.json.JSONArray;
@@ -78,7 +67,8 @@ class WeatherJsonUtils {
                 /* Get the ith forecast in the JSON and define it as a JsonObject */
                 JSONObject forecastJsonObject = listJsonArray.getJSONObject(i);
 
-                int unixDateTime = forecastJsonObject.getInt(OWM_UNIX_DT);
+                long unixDateTime = forecastJsonObject.getInt(OWM_UNIX_DT);
+                Log.d(TAG, "unixDateTime: " + unixDateTime);
                 String calculateDateTime = forecastJsonObject.getString(OWM_CALC_DT);
 
                 /*

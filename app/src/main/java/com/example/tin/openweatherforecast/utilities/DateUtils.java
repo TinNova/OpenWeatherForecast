@@ -78,7 +78,7 @@ public class DateUtils {
      * @param unixDate The date and time in Unix format
      * @return String in the form of "Wed, 12, Jan, 13:00"
      */
-    public static String convertUnixDateToHumanReadable(int unixDate) {
+    public static String convertUnixDateToHumanReadable(long unixDate) {
         long unixInMilliseconds = (unixDate) * 1000;// its need to be in milisecond
         Date dateFormat = new java.util.Date(unixInMilliseconds);
         String humanReadableDateTime = new SimpleDateFormat("EEE, d MMM").format(dateFormat);

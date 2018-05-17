@@ -54,6 +54,10 @@ public class WeatherIntentService extends IntentService {
                 contentResolver.bulkInsert(
                         WeatherContract.WeatherEntry.CONTENT_URI,
                         weatherValues);
+
+                Log.d(TAG, "The Data Added: " + weatherValues);
+
+                Log.d(TAG, "IntentService Weather Data: " + mWeather);
             }
         }
     }

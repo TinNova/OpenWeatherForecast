@@ -8,7 +8,7 @@ import android.util.Log;
 
 public class WeatherCursorLoader extends AsyncTaskLoader<Cursor> {
 
-    private static final String LOG_TAG = WeatherCursorLoader.class.getSimpleName();
+    private static final String TAG = WeatherCursorLoader.class.getSimpleName();
 
     public WeatherCursorLoader(Context context) {
         super(context);
@@ -35,7 +35,7 @@ public class WeatherCursorLoader extends AsyncTaskLoader<Cursor> {
         } catch (Exception e) {
 
             e.printStackTrace();
-            Log.e(LOG_TAG, e.getLocalizedMessage());
+            Log.e(TAG, e.getLocalizedMessage());
         }
         return null;
     }

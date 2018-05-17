@@ -42,8 +42,6 @@ public class WeatherContract {
         public static final String COLUMN_TEMP_MIN = "temp_min";
         public static final String COLUMN_TEMP_MAX = "temp_max";
         public static final String COLUMN_WEATHER_DESC = "weather_description";
-        //TODO: Look to change this to BitMap, else with an ID we can get the image unless they
-        // are all saved into the app...
         public static final String COLUMN_WEATHER_ID = "weather_id";
         public static final String COLUMN_WIND_SPEED = "wind_speed";
         public static final String COLUMN_WIND_DEGREE = "wind_degree";

@@ -8,7 +8,7 @@ class WeatherDbHelper extends SQLiteOpenHelper {
 
     /* The name of the database as it will be saved on the users Android Device */
     private static final String DATABASE_NAME = "open_weather_forecast.db";
-    private static final int DATABASE_VERSION = 11;
+    private static final int DATABASE_VERSION = 15;
 
     /* Constructor that takes a context and calls the parent constructor */
     public WeatherDbHelper (Context context) {
@@ -20,7 +20,7 @@ class WeatherDbHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_WEATHER_TABLE = "CREATE TABLE " +
                 WeatherContract.WeatherEntry.TABLE_NAME + " (" +
                 WeatherContract.WeatherEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                WeatherContract.WeatherEntry.COLUMN_UNIX_DATE + " REAL NOT NULL, " +
+                WeatherContract.WeatherEntry.COLUMN_UNIX_DATE + " INTEGER NOT NULL, " +
                 WeatherContract.WeatherEntry.COLUMN_CALC_DATE + " TEXT NOT NULL, " +
                 WeatherContract.WeatherEntry.COLUMN_TEMP_CURRENT + " DOUBLE NOT NULL, " +
                 WeatherContract.WeatherEntry.COLUMN_TEMP_MIN + " REAL NOT NULL, " +
