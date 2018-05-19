@@ -2,8 +2,10 @@ package com.example.tin.openweatherforecast;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -40,7 +42,6 @@ import com.example.tin.openweatherforecast.data.WeatherSharedPreferencesHelper;
 import com.example.tin.openweatherforecast.models.Weather;
 import com.example.tin.openweatherforecast.data.WeatherContract;
 import com.example.tin.openweatherforecast.data.WeatherIntentService;
-import com.example.tin.openweatherforecast.utilities.DateUtils;
 import com.example.tin.openweatherforecast.utilities.IntentServiceUtils;
 import com.example.tin.openweatherforecast.utilities.NetworkListener;
 import com.example.tin.openweatherforecast.utilities.NetworkConnection;
@@ -132,11 +133,26 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     /* Reference to SharedPreferences */
     public static SharedPreferences weatherSharedPref;
 
+    /* Creating variables for the IntentFilter and ConnectivityBroadcastReceiver*/
+    IntentFilter mConnIntentFilter;
+    ConnectivityBroadcastReceiver mConnBroadcastReceiver;
+    boolean networkConnected;
+
+
     @SuppressLint("MissingPermission")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        /* Instantiating the IntentFilter and adding the intent we are looking for via .addAction() */
+        mConnIntentFilter = new IntentFilter();
+        mConnIntentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        /* Instantiating the BroadcastReceiver */
+        mConnBroadcastReceiver = new ConnectivityBroadcastReceiver();
+
+        /* Registering the BroadcastReceiver and passing in the Intent Filter */
+        registerReceiver(mConnBroadcastReceiver, mConnIntentFilter);
 
         /* Getting an instance of the weatherSharedPref */
         weatherSharedPref = getSharedPreferences(getPackageName() + "_preferences", MODE_PRIVATE);
@@ -193,23 +209,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             @Override
             public void onClick(View v) {
 
-                /* If the connManager and networkInfo is NOT null, start the login() method */
-                if (mConnectionManager != null)
-                    mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
-                if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
-
-                    /* if GPS is enabled */
-                    if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-
-                        downloadResponseOrDisplaySqlData();
-                    } else {
-
-                        Toast.makeText(MainActivity.this, getString(R.string.no_gps), Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-
-                    Toast.makeText(MainActivity.this, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
-                }
+                downloadResponseOrDisplaySqlData();
             }
         });
 
@@ -218,23 +218,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             @Override
             public void onClick(View v) {
 
-                /* If the connManager and networkInfo is NOT null, start the login() method */
-                if (mConnectionManager != null)
-                    mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
-                if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
-
-                    /* if GPS is enabled */
-                    if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-
-                        downloadResponseOrDisplaySqlData();
-                    } else {
-
-                        Toast.makeText(MainActivity.this, getString(R.string.no_gps), Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-
-                    Toast.makeText(MainActivity.this, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
-                }
+                downloadResponseOrDisplaySqlData();
             }
         });
 
@@ -274,10 +258,14 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
      */
     private void downloadResponseOrDisplaySqlData() {
 
-        /* If the connManager and networkInfo is NOT null */
-        if (mConnectionManager != null)
-            mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
-        if (mNetworkInfo != null && mNetworkInfo.isConnected()) {
+        /* if networkConnected == false */
+        if (!networkConnected) {
+            Toast.makeText(MainActivity.this, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
+
+            if (mWeather.size() == 0) {
+                displaySqlData();
+            }
+        } else {
 
             /* if GPS is enabled */
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -294,20 +282,14 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     double deviceLon = deviceLocationArray[1];
 
                     getData(deviceLat, deviceLon);
-                } else {
-
-                    Toast.makeText(MainActivity.this, getString(R.string.no_gps), Toast.LENGTH_SHORT).show();
-                    displaySqlData();
                 }
             } else {
 
                 Toast.makeText(MainActivity.this, getString(R.string.no_gps), Toast.LENGTH_SHORT).show();
-                displaySqlData();
+                if (mWeather.size() == 0) {
+                    displaySqlData();
+                }
             }
-        } else {
-
-            Toast.makeText(MainActivity.this, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
-            displaySqlData();
         }
     }
 
@@ -637,5 +619,33 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         /* Saving mWeather to be reused should the device rotate */
         outState.putParcelableArrayList(SAVED_INSTANT_STATE_KEY, mWeather);
 
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause");
+        unregisterReceiver(mConnBroadcastReceiver);
+    }
+
+    public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            Log.d(TAG, "IN METHOD, ACTION = " + action);
+            if (action != null) {
+                mConnectionManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                if (mConnectionManager != null)
+                    mNetworkInfo = mConnectionManager.getActiveNetworkInfo();
+                if (mNetworkInfo != null && mNetworkInfo.isConnectedOrConnecting()) {
+                    networkConnected = true;
+                    Log.i(TAG, "Network " + mNetworkInfo.getTypeName() + " connected");
+                } else if (intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, Boolean.FALSE)) {
+                    networkConnected = false;
+                    Log.d(TAG, "No connectivity!");
+                }
+            }
+        }
     }
 }
