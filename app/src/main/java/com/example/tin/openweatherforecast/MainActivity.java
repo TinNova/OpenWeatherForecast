@@ -70,9 +70,10 @@ import static com.example.tin.openweatherforecast.utilities.WeatherUtils.getLarg
 
 //TODO: Delete the data from SQL if data is more than 24hours old, try adding the date in Unix into shared preferences the moment JSON is passed to the MainActivity?
 
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class MainActivity extends AppCompatActivity implements MainContract.MainScreen, LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+    private MainPresenter presenter;
 
     /* ID that is responsible for identifying the loader that loads the Weather data */
     private static final int WEATHER_LOADER_ID = 99;
@@ -144,6 +145,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        presenter = new MainPresenter(this);
 
         /* Instantiating the IntentFilter and adding the intent we are looking for via .addAction() */
         mConnIntentFilter = new IntentFilter();
